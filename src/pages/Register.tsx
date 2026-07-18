@@ -1,10 +1,22 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import CountryCodeSelect from '../components/CountryCodeSelect';
+import ThemeToggle from '../components/ThemeToggle';
 import { supabase } from '../lib/supabase';
 import { signUpWithEmail, signInWithPhone, verifyOtp, signInWithGoogle } from '../lib/auth';
+
+const inputClass =
+  'w-full px-4 py-2.5 rounded-lg border bg-white dark:bg-dark-700 text-gray-900 dark:text-light placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 transition';
+
+const inputNormalClass =
+  'border-gray-200 dark:border-dark-500 focus:ring-primary-500/40 focus:border-primary-500';
+
+const inputErrorClass =
+  'border-red-500 dark:border-red-400 focus:ring-red-500/40 focus:border-red-500';
+
+const labelClass = 'block text-sm font-medium text-gray-800 dark:text-gray-200 mb-1.5';
 
 export default function Register() {
   const navigate = useNavigate();
@@ -15,18 +27,15 @@ export default function Register() {
   const [countryCode, setCountryCode] = useState('+1');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [otp, setOtp] = useState('');
   const [showOtpInput, setShowOtpInput] = useState(false);
   const [registrationComplete, setRegistrationComplete] = useState(false);
-
-  // Registration functions are now implemented directly in the button onClick handlers
-
-  // Phone registration functions are now implemented directly in the button onClick handlers
+  const [fieldErrors, setFieldErrors] = useState<{ email?: string; password?: string; confirmPassword?: string }>({});
 
   const handleGoogleRegistration = async () => {
     try {
       const { error } = await signInWithGoogle();
-
       if (error) throw new Error(error);
     } catch (error: any) {
       toast.error(error.message || 'Failed to register with Google');
@@ -35,32 +44,37 @@ export default function Register() {
 
   if (registrationComplete) {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
-        <div className="w-full max-w-md bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+      <div className="min-h-screen bg-gray-50 dark:bg-dark-800 flex flex-col items-center justify-center px-4 py-6 transition-colors duration-200">
+        <div className="w-full max-w-md bg-white dark:bg-dark-600 rounded-lg shadow-sm border border-gray-200 dark:border-dark-500 overflow-hidden text-gray-900 dark:text-light relative">
+          {/* Theme toggle at top-right corner of container */}
+          <div className="absolute top-3 right-3 z-10">
+            <ThemeToggle compact />
+          </div>
+
           <div className="p-6 text-center">
             <div className="flex justify-center mb-6">
-              <div className="bg-green-100 p-3 rounded-full">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div className="bg-green-100 dark:bg-green-900/40 p-3 rounded-full">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-green-500 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
               </div>
             </div>
-            
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">Thank you for your registration!</h2>
-            <p className="text-gray-600 mb-6">
+
+            <h2 className="text-2xl font-bold text-gray-800 dark:text-light mb-2">Thank you for your registration!</h2>
+            <p className="text-gray-600 dark:text-gray-300 mb-6">
               We're glad you're here! Before you start exploring, we just sent you the email confirmation.
             </p>
-            
+
             <button
               onClick={() => navigate('/login')}
-              className="w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+              className="w-full py-2.5 bg-primary-600 hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-400 text-white font-medium rounded-lg transition"
             >
               Go to Login
             </button>
-            
+
             <button
               onClick={() => setRegistrationComplete(false)}
-              className="w-full mt-3 py-2 text-blue-600 hover:text-blue-700 transition"
+              className="w-full mt-3 py-2 text-primary-600 dark:text-primary-300 hover:text-primary-700 dark:hover:text-primary-200 font-medium transition"
             >
               Resend email confirmation
             </button>
@@ -71,20 +85,30 @@ export default function Register() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
-      <div className="w-full max-w-md bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+    <div className="min-h-screen bg-gray-50 dark:bg-dark-800 flex flex-col items-center justify-center px-4 py-6 transition-colors duration-200">
+      <div className="w-full max-w-md bg-white dark:bg-dark-600 rounded-lg shadow-sm border border-gray-200 dark:border-dark-500 overflow-hidden text-gray-900 dark:text-light relative">
+        {/* Theme toggle at top-right corner of container */}
+        <div className="absolute top-3 right-3 z-10">
+          <ThemeToggle compact />
+        </div>
+
         <div className="p-6">
           <div className="flex items-center mb-6">
-            <Link to="/" className="text-gray-500 hover:text-gray-700">
+            <Link
+              to="/"
+              className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-light transition"
+            >
               <ArrowLeft size={20} />
             </Link>
-            <h1 className="text-2xl font-bold text-center flex-1 pr-5">Create New Account</h1>
+            <h1 className="text-2xl font-bold text-center flex-1 pr-5 text-gray-900 dark:text-light">
+              Create New Account
+            </h1>
           </div>
 
           <div className="flex justify-center mb-6">
-            <img 
-              src="/images/register-illustration.svg" 
-              alt="Register" 
+            <img
+              src="/images/register-illustration.svg"
+              alt="Register"
               className="h-40 w-auto"
               onError={(e) => {
                 const target = e.target as HTMLImageElement;
@@ -94,17 +118,25 @@ export default function Register() {
             />
           </div>
 
-          <div className="flex space-x-2 mb-6">
+          <div className="flex space-x-2 mb-6 p-1 bg-gray-100 dark:bg-dark-700 rounded-xl">
             <button
-              className={`flex-1 py-2 px-4 rounded-lg transition ${
-                !isPhoneRegistration ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'
+              type="button"
+              className={`flex-1 py-2 px-4 rounded-lg font-medium transition ${
+                !isPhoneRegistration
+                  ? 'bg-white dark:bg-dark-500 text-primary-700 dark:text-primary-300 shadow-sm'
+                  : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-light'
               }`}
               onClick={() => setIsPhoneRegistration(false)}
             >
               Email
             </button>
             <button
-              className={`flex-1 py-2 px-4 rounded-lg transition ${isPhoneRegistration ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'}`}
+              type="button"
+              className={`flex-1 py-2 px-4 rounded-lg font-medium transition ${
+                isPhoneRegistration
+                  ? 'bg-white dark:bg-dark-500 text-primary-700 dark:text-primary-300 shadow-sm'
+                  : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-light'
+              }`}
               onClick={() => {
                 setIsPhoneRegistration(true);
                 toast('Note: Phone authentication requires additional Supabase configuration.', { icon: 'ℹ️' });
@@ -115,169 +147,164 @@ export default function Register() {
           </div>
 
           {isPhoneRegistration ? (
-            <div className="space-y-4">
+            <form onSubmit={(e) => { e.preventDefault(); }} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                <label className={labelClass}>Full Name</label>
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg"
+                  className={`${inputClass} ${inputNormalClass}`}
                   placeholder="John Doe"
                 />
               </div>
-              
+
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                <label className={labelClass}>Phone Number</label>
                 <div className="flex space-x-2">
-                  <CountryCodeSelect 
-                    selectedCode={countryCode} 
-                    onSelect={setCountryCode} 
+                  <CountryCodeSelect
+                    selectedCode={countryCode}
+                    onSelect={setCountryCode}
                     disabled={showOtpInput}
                   />
                   <input
                     type="tel"
                     value={phoneNumber}
                     onChange={(e) => setPhoneNumber(e.target.value)}
-                    className="flex-1 px-4 py-2 border border-gray-200 rounded-lg"
+                    className={`flex-1 ${inputClass} ${inputNormalClass}`}
                     placeholder="7025551234"
                     disabled={showOtpInput}
                   />
                 </div>
-                <p className="text-xs text-gray-500 mt-1">Enter your phone number without country code</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1.5">
+                  Enter your phone number without country code
+                </p>
               </div>
-              
+
               {!showOtpInput && (
                 <>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                    <input
-                      type="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="w-full px-4 py-2 border border-gray-200 rounded-lg"
-                      placeholder="••••••••"
-                    />
+                    <label className={labelClass}>Password</label>
+                    <div className="relative">
+                      <input
+                        type={showPassword ? 'text' : 'password'}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className={`${inputClass} pr-11 ${inputNormalClass}`}
+                        placeholder="••••••••"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword((prev) => !prev)}
+                        className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-light transition"
+                        aria-label={showPassword ? 'Hide password' : 'Show password'}
+                      >
+                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                      </button>
+                    </div>
                   </div>
-                  
+
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
+                    <label className={labelClass}>Confirm Password</label>
                     <input
                       type="password"
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
-                      className="w-full px-4 py-2 border border-gray-200 rounded-lg"
+                      className={`${inputClass} ${inputNormalClass}`}
                       placeholder="••••••••"
                     />
                   </div>
                 </>
               )}
-              
+
               {showOtpInput && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">OTP Code</label>
+                  <label className={labelClass}>OTP Code</label>
                   <input
                     type="text"
                     value={otp}
                     onChange={(e) => setOtp(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-200 rounded-lg"
+                    className={`${inputClass} ${inputNormalClass}`}
                     placeholder="Enter OTP"
                   />
                 </div>
               )}
-              
+
               <button
                 type="button"
                 onClick={() => {
-                  console.log('Phone registration button clicked');
-                  
-                  // Combine country code with phone number
-                  const fullPhoneNumber = phoneNumber.startsWith('+') 
-                    ? phoneNumber 
+                  const fullPhoneNumber = phoneNumber.startsWith('+')
+                    ? phoneNumber
                     : `${countryCode}${phoneNumber.startsWith('0') ? phoneNumber.substring(1) : phoneNumber}`;
-                  
+
                   if (!showOtpInput) {
                     if (password !== confirmPassword) {
                       toast.error('Passwords do not match');
                       return;
                     }
-                    
+
                     if (password.length < 6) {
                       toast.error('Password must be at least 6 characters long');
                       return;
                     }
 
-                    // Show loading toast
                     const loadingToast = toast.loading('Sending OTP...');
-                    console.log('Sending OTP to:', fullPhoneNumber);
 
                     signInWithPhone(fullPhoneNumber)
                       .then(({ error }) => {
                         if (error) {
-                          console.error('OTP send error:', error);
                           toast.dismiss(loadingToast);
                           toast.error(error);
                           return;
                         }
-                        
+
                         toast.dismiss(loadingToast);
                         setShowOtpInput(true);
                         toast.success('OTP sent to your phone!');
                       })
                       .catch((err: any) => {
-                        console.error('Unexpected error:', err);
                         toast.dismiss(loadingToast);
                         toast.error('An unexpected error occurred');
                       });
                   } else {
-                    // Show loading toast
                     const loadingToast = toast.loading('Verifying OTP...');
-                    console.log('Verifying OTP:', otp, 'for phone:', fullPhoneNumber);
 
                     verifyOtp(fullPhoneNumber, otp)
                       .then(({ data, error }) => {
                         if (error) {
-                          console.error('OTP verification error:', error);
                           toast.dismiss(loadingToast);
                           toast.error(error);
                           return;
                         }
 
-                        console.log('OTP verification successful:', data);
-
-                        // Create a profile record in the users table
                         if (data?.user && data.user.id) {
                           const userData = {
                             name,
                             phone: fullPhoneNumber,
                           };
-                          
-                          // Using an immediately invoked async function to handle profile update
+
                           (async () => {
                             try {
-                              // Update user profile
                               const { error: profileError } = await supabase
                                 .from('users')
                                 .upsert([
-                                  { 
+                                  {
                                     id: data.user!.id,
                                     ...userData,
                                     created_at: new Date().toISOString(),
                                   },
                                 ], { onConflict: 'id' });
-                              
+
                               if (profileError) {
-                                console.error('Profile update error:', profileError);
                                 toast.dismiss(loadingToast);
                                 toast.error('Failed to create user profile');
                                 return;
                               }
-                              
+
                               toast.dismiss(loadingToast);
                               toast.success('Registration successful!');
                               navigate('/');
                             } catch (err: any) {
-                              console.error('Profile update unexpected error:', err);
                               toast.dismiss(loadingToast);
                               toast.error('An unexpected error occurred');
                             }
@@ -289,13 +316,12 @@ export default function Register() {
                         }
                       })
                       .catch((err: any) => {
-                        console.error('Unexpected error:', err);
                         toast.dismiss(loadingToast);
                         toast.error('An unexpected error occurred');
                       });
                   }
                 }}
-                className="w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+                className="w-full py-2.5 bg-primary-600 hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-400 text-white font-medium rounded-lg transition"
               >
                 {showOtpInput ? 'Verify OTP' : 'Send OTP'}
               </button>
@@ -307,122 +333,129 @@ export default function Register() {
                     setShowOtpInput(false);
                     setOtp('');
                   }}
-                  className="w-full py-2 text-blue-600 hover:text-blue-700 transition"
+                  className="w-full py-2 text-primary-600 dark:text-primary-300 hover:text-primary-700 dark:hover:text-primary-200 font-medium transition"
                 >
                   Change Phone Number
                 </button>
               )}
-            </div>
+            </form>
           ) : (
-            <div className="space-y-4">
+            <form onSubmit={(e) => { e.preventDefault(); }} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                <label className={labelClass}>Full Name</label>
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg"
+                  className={`${inputClass} ${inputNormalClass}`}
                   placeholder="John Doe"
                 />
               </div>
-              
+
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                <label className={labelClass}>Email</label>
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg"
+                  className={`${inputClass} ${inputNormalClass}`}
                   placeholder="your@email.com"
                 />
               </div>
-              
+
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg"
-                  placeholder="••••••••"
-                />
+                <label className={labelClass}>Password</label>
+                <div className="relative">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className={`${inputClass} pr-11 ${inputNormalClass}`}
+                    placeholder="••••••••"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-light transition"
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
               </div>
-              
+
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
+                <label className={labelClass}>Confirm Password</label>
                 <input
                   type="password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg"
+                  className={`${inputClass} ${inputNormalClass}`}
                   placeholder="••••••••"
                 />
               </div>
-              
+
               <button
                 type="button"
                 onClick={() => {
-                  console.log('Register button clicked');
                   if (password !== confirmPassword) {
                     toast.error('Passwords do not match');
                     return;
                   }
-                  
+
                   if (password.length < 6) {
                     toast.error('Password must be at least 6 characters long');
                     return;
                   }
-                  
-                  // Show loading toast
+
                   const loadingToast = toast.loading('Creating your account...');
-                  console.log('Attempting to register with:', { email, password, name });
-                  
-                  // Create the user with email and password
+
                   const userData = {
                     name,
                     email
                   };
-                  
+
                   signUpWithEmail(email, password, userData)
                     .then(({ error }) => {
                       if (error) {
-                        console.error('Registration error:', error);
                         toast.dismiss(loadingToast);
                         toast.error(error);
                         return;
                       }
-                      
+
                       toast.dismiss(loadingToast);
                       setRegistrationComplete(true);
                       toast.success('Registration successful! Please check your email for verification.');
                     })
                     .catch(err => {
-                      console.error('Unexpected error:', err);
                       toast.dismiss(loadingToast);
                       toast.error('An unexpected error occurred');
                     });
                 }}
-                className="w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+                className="w-full py-2.5 bg-primary-600 hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-400 text-white font-medium rounded-lg transition"
               >
                 Register
               </button>
-            </div>
+            </form>
           )}
 
           <div className="mt-6">
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-200"></div>
+                <div className="w-full border-t border-gray-200 dark:border-dark-500"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">Or continue with</span>
+                <span className="px-2 bg-white dark:bg-dark-600 text-gray-500 dark:text-gray-400">
+                  Or continue with
+                </span>
               </div>
             </div>
 
             <div className="mt-6">
               <button
+                type="button"
                 onClick={handleGoogleRegistration}
-                className="w-full py-2 px-4 border border-gray-300 rounded-lg flex items-center justify-center space-x-2 hover:bg-gray-50 transition"
+                className="w-full py-2.5 px-4 border border-gray-300 dark:border-dark-500 rounded-lg flex items-center justify-center space-x-2 bg-white dark:bg-dark-700 text-gray-800 dark:text-light hover:bg-gray-50 dark:hover:bg-dark-500 transition font-medium"
               >
                 <svg className="h-5 w-5" viewBox="0 0 24 24">
                   <path
@@ -446,11 +479,14 @@ export default function Register() {
               </button>
             </div>
           </div>
-          
+
           <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-gray-700 dark:text-gray-300">
               Already have an account?{' '}
-              <Link to="/login" className="text-blue-600 hover:text-blue-700 font-medium">
+              <Link
+                to="/login"
+                className="text-primary-600 dark:text-primary-300 hover:text-primary-700 dark:hover:text-primary-200 font-semibold"
+              >
                 Login here
               </Link>
             </p>

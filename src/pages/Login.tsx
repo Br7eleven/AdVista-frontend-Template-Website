@@ -191,12 +191,12 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-dark-800 flex flex-col items-center justify-center p-4 transition-colors duration-200">
-      <div className="fixed top-4 right-4 z-50">
-        <ThemeToggle compact />
-      </div>
-
-      <div className="w-full max-w-md bg-white dark:bg-dark-600 rounded-lg shadow-sm border border-gray-200 dark:border-dark-500 overflow-hidden text-gray-900 dark:text-light">
+    <div className="min-h-screen bg-gray-50 dark:bg-dark-800 flex flex-col items-center justify-center px-4 py-6 transition-colors duration-200">
+      <div className="w-full max-w-md bg-white dark:bg-dark-600 rounded-lg shadow-sm border border-gray-200 dark:border-dark-500 overflow-hidden text-gray-900 dark:text-light relative">
+        {/* Theme toggle at top-right corner of container */}
+        <div className="absolute top-3 right-3 z-10">
+          <ThemeToggle compact />
+        </div>
         <div className="p-6">
           <div className="flex items-center mb-6">
             <Link
