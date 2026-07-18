@@ -74,6 +74,7 @@ export const signUpWithEmail = async (email: string, password: string, userData:
       password,
       options: {
         data: userData,
+        emailRedirectTo: `${window.location.origin}/login`,
       },
     });
 
@@ -168,6 +169,9 @@ export const resendConfirmationEmail = async (email: string) => {
     const { error } = await supabase.auth.resend({
       type: 'signup',
       email,
+      options: {
+        emailRedirectTo: `${window.location.origin}/login`,
+      },
     });
 
     if (error) throw error;
