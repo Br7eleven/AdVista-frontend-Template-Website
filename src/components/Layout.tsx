@@ -31,7 +31,15 @@ const Navigation = () => {
   }, []);
   
   const handleSignOut = async () => {
-    await supabase.auth.signOut();
+    // Race signOut against a timeout — if Supabase API hangs, navigate anyway
+    try {
+      await Promise.race([
+        supabase.auth.signOut(),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 5000)),
+      ]);
+    } catch (e) {
+      console.error('Sign out error:', e);
+    }
     navigate('/login');
   };
   
