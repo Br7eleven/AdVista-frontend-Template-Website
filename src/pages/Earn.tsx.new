@@ -1,0 +1,504 @@
+import { useState, useEffect, useRef } from 'react';
+import { ArrowDown, ArrowUp, RefreshCw, Clock, BarChart2, ChevronDown } from 'lucide-react';
+import toast from 'react-hot-toast';
+import SimpleTradingChart from '../components/SimpleTradingChart';
+import TradingOrderForm from '../components/TradingOrderForm';
+import ErrorBoundary from '../components/ErrorBoundary';
+import CoinPriceList from '../components/CoinPriceList';
+import ReferralTracker from '../components/ReferralTracker';
+import { setupTradingTables } from '../lib/setupTradingTables';
+import { 
+  fetchTradingPairs, 
+  fetchCandleData, 
+  fetchUserWallets, 
+  fetchUserTrades,
+  TradingPair,
+  UserWallet,
+  UserTrade,
+  CandleData
+} from '../lib/tradingApi';
+
+interface MarketStats {
+  volume24h: number;
+  high24h: number;
+  low24h: number;
+  change24h: number;
+}
+
+export default function Earn() {
+  // Trading state
+  const [pairs, setPairs] = useState<TradingPair[]>([]);
+  const [selectedPair, setSelectedPair] = useState<TradingPair | null>(null);
+  const [candleData, setCandleData] = useState<CandleData[]>([]);
+  const [timeframe, setTimeframe] = useState<string>('1h');
+  const [wallets, setWallets] = useState<UserWallet[]>([]);
+  const [trades, setTrades] = useState<UserTrade[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [pairDropdownOpen, setPairDropdownOpen] = useState<boolean>(false);
+  const [timeframeDropdownOpen, setTimeframeDropdownOpen] = useState<boolean>(false);
+  const [marketStats, setMarketStats] = useState<MarketStats>({
+    volume24h: 0,
+    high24h: 0,
+    low24h: 0,
+    change24h: 0,
+  });
+  
+  // Tab state
+  const [activeTab, setActiveTab] = useState<'trading' | 'referrals'>('trading');
+
+  // Refs for dropdown click-outside handling
+  const pairDropdownRef = useRef<HTMLDivElement>(null);
+  const timeframeDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Load candle data for a specific pair and timeframe
+  const loadCandleData = async (pairId: string, tf: string) => {
+    try {
+      const data = await fetchCandleData(pairId, tf);
+      setCandleData(data);
+      
+      // Update market stats
+      if (data.length > 0) {
+        const high = Math.max(...data.map(candle => candle.high));
+        const low = Math.min(...data.map(candle => candle.low));
+        const volume = data.reduce((sum, candle) => sum + candle.volume, 0);
+        const change = ((data[data.length - 1].close - data[0].open) / data[0].open) * 100;
+        
+        setMarketStats({
+          high24h: high,
+          low24h: low,
+          volume24h: volume,
+          change24h: change
+        });
+      }
+    } catch (error) {
+      console.error('Error loading candle data:', error);
+      toast.error('Failed to load chart data');
+    }
+  };
+
+  // Load initial data
+  useEffect(() => {
+    const loadInitialData = async () => {
+      try {
+        setLoading(true);
+        
+        // Initialize trading tables and mock data
+        await setupTradingTables();
+        
+        // Load trading pairs
+        const pairsData = await fetchTradingPairs();
+        setPairs(pairsData);
+        
+        // Set default pair
+        if (pairsData.length > 0) {
+          setSelectedPair(pairsData[0]);
+          await loadCandleData(pairsData[0].id, timeframe);
+        }
+        
+        // Load user wallets
+        const walletsData = await fetchUserWallets();
+        setWallets(walletsData);
+        
+        // Load user trades
+        const tradesData = await fetchUserTrades();
+        setTrades(tradesData);
+        
+        setLoading(false);
+      } catch (error) {
+        console.error('Error loading initial data:', error);
+        toast.error('Failed to load trading data');
+        setLoading(false);
+      }
+    };
+    
+    loadInitialData();
+  }, []);
+
+  // Handle pair selection
+  const handlePairSelect = (pair: TradingPair) => {
+    setSelectedPair(pair);
+    setPairDropdownOpen(false);
+    loadCandleData(pair.id, timeframe);
+  };
+
+  // Handle timeframe selection
+  const handleTimeframeSelect = (tf: string) => {
+    setTimeframe(tf);
+    setTimeframeDropdownOpen(false);
+    if (selectedPair) {
+      loadCandleData(selectedPair.id, tf);
+    }
+  };
+  
+  // Handle order submission
+  const handleOrderSubmit = async (type: 'buy' | 'sell', amount: number, price: number) => {
+    if (!selectedPair) return;
+    
+    try {
+      toast.success(`${type.toUpperCase()} order placed successfully!`);
+      
+      // Refresh wallets and trades after order
+      const walletsData = await fetchUserWallets();
+      setWallets(walletsData);
+      
+      const tradesData = await fetchUserTrades();
+      setTrades(tradesData);
+    } catch (error) {
+      console.error('Error placing order:', error);
+      toast.error('Failed to place order');
+    }
+  };
+  
+  // Get current price from candle data
+  const getCurrentPrice = (): number => {
+    if (!Array.isArray(candleData) || candleData.length === 0) return 0;
+    return candleData[candleData.length - 1].close;
+  };
+  
+  // Handle click outside for dropdowns
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      // Close pair dropdown when clicking outside
+      if (pairDropdownRef.current && !pairDropdownRef.current.contains(event.target as Node)) {
+        setPairDropdownOpen(false);
+      }
+      
+      // Close timeframe dropdown when clicking outside
+      if (timeframeDropdownRef.current && !timeframeDropdownRef.current.contains(event.target as Node)) {
+        setTimeframeDropdownOpen(false);
+      }
+    }
+    
+    // Add event listener
+    document.addEventListener('mousedown', handleClickOutside);
+    
+    // Clean up
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  // Function to refresh data
+  const refreshData = async () => {
+    if (loading) return;
+    
+    try {
+      setLoading(true);
+      toast.success('Refreshing trading data...');
+      
+      // Reload all data
+      const pairsData = await fetchTradingPairs();
+      setPairs(pairsData);
+      
+      if (selectedPair) {
+        await loadCandleData(selectedPair.id, timeframe);
+      }
+      
+      const walletsData = await fetchUserWallets();
+      setWallets(walletsData);
+      
+      const tradesData = await fetchUserTrades();
+      setTrades(tradesData);
+      
+      setLoading(false);
+    } catch (error) {
+      console.error('Error refreshing data:', error);
+      toast.error('Failed to refresh trading data');
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold">Cryptocurrency Trading</h1>
+        <button 
+          onClick={refreshData}
+          className="flex items-center space-x-2 px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition"
+          disabled={loading}
+        >
+          <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+          <span>Refresh</span>
+        </button>
+      </div>
+      
+      {/* Tabs for Trading and Referrals */}
+      <div className="border-b border-gray-200">
+        <nav className="-mb-px flex space-x-8">
+          <button
+            onClick={() => setActiveTab('trading')}
+            className={`py-4 px-1 border-b-2 font-medium text-sm ${
+              activeTab === 'trading'
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            }`}
+          >
+            Trading
+          </button>
+          <button
+            onClick={() => setActiveTab('referrals')}
+            className={`py-4 px-1 border-b-2 font-medium text-sm ${
+              activeTab === 'referrals'
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            }`}
+          >
+            Referrals
+          </button>
+        </nav>
+      </div>
+      
+      {activeTab === 'trading' ? (
+        /* Trading Interface */
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Main Chart Area (2/3 width on large screens) */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Trading Pair Selector and Controls */}
+            <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+              <div className="flex flex-wrap justify-between items-center">
+                {/* Trading Pair Selector */}
+                <div className="relative" ref={pairDropdownRef}>
+                  <button 
+                    onClick={() => setPairDropdownOpen(!pairDropdownOpen)}
+                    className="flex items-center space-x-2 px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition"
+                  >
+                    <span className="font-semibold">
+                      {selectedPair ? selectedPair.display_name : 'Select Pair'}
+                    </span>
+                    <ChevronDown className="w-4 h-4" />
+                  </button>
+                  
+                  {pairDropdownOpen && (
+                    <div className="absolute z-10 mt-1 w-64 bg-white rounded-lg shadow-lg border border-gray-200 max-h-60 overflow-y-auto">
+                      {pairs.map((pair) => (
+                        <button
+                          key={pair.id}
+                          onClick={() => handlePairSelect(pair)}
+                          className="w-full px-4 py-2 text-left hover:bg-gray-100 flex justify-between items-center"
+                        >
+                          <span>{pair.display_name}</span>
+                          {pair.id === selectedPair?.id && (
+                            <span className="text-blue-600">✓</span>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                
+                {/* Timeframe Selector */}
+                <div className="relative ml-2" ref={timeframeDropdownRef}>
+                  <button 
+                    onClick={() => setTimeframeDropdownOpen(!timeframeDropdownOpen)}
+                    className="flex items-center space-x-2 px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition"
+                  >
+                    <span>{timeframe}</span>
+                    <ChevronDown className="w-4 h-4" />
+                  </button>
+                  
+                  {timeframeDropdownOpen && (
+                    <div className="absolute z-10 mt-1 w-32 bg-white rounded-lg shadow-lg border border-gray-200">
+                      {['1m', '5m', '15m', '1h', '4h', '1d'].map((tf) => (
+                        <button
+                          key={tf}
+                          onClick={() => handleTimeframeSelect(tf)}
+                          className="w-full px-4 py-2 text-left hover:bg-gray-100 flex justify-between items-center"
+                        >
+                          <span>{tf}</span>
+                          {tf === timeframe && (
+                            <span className="text-blue-600">✓</span>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                
+                {/* Market Stats */}
+                <div className="flex flex-wrap mt-2 sm:mt-0">
+                  <div className="flex items-center space-x-1 mr-4">
+                    <Clock className="w-4 h-4 text-gray-500" />
+                    <span className="text-sm">24h High:</span>
+                    <span className="text-sm font-semibold">
+                      ${marketStats.high24h.toFixed(2)}
+                    </span>
+                  </div>
+                  
+                  <div className="flex items-center space-x-1 mr-4">
+                    <Clock className="w-4 h-4 text-gray-500" />
+                    <span className="text-sm">24h Low:</span>
+                    <span className="text-sm font-semibold">
+                      ${marketStats.low24h.toFixed(2)}
+                    </span>
+                  </div>
+                  
+                  <div className="flex items-center space-x-1 mr-4">
+                    <BarChart2 className="w-4 h-4 text-gray-500" />
+                    <span className="text-sm">24h Vol:</span>
+                    <span className="text-sm font-semibold">
+                      ${Math.round(marketStats.volume24h).toLocaleString()}
+                    </span>
+                  </div>
+                  
+                  <div className="flex items-center space-x-1">
+                    {marketStats.change24h >= 0 ? (
+                      <ArrowUp className="w-4 h-4 text-green-500" />
+                    ) : (
+                      <ArrowDown className="w-4 h-4 text-red-500" />
+                    )}
+                    <span className="text-sm">24h Change:</span>
+                    <span className={`text-sm font-semibold ${marketStats.change24h >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                      {marketStats.change24h.toFixed(2)}%
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Chart */}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+              {loading ? (
+                <div className="h-96 flex items-center justify-center">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                </div>
+              ) : selectedPair ? (
+                <ErrorBoundary
+                  fallback={
+                    <div className="h-96 flex items-center justify-center flex-col">
+                      <p className="text-red-500 mb-2">Failed to load chart</p>
+                      <p className="text-gray-500 mb-4">There was a problem displaying the trading chart</p>
+                      <button 
+                        className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                        onClick={() => window.location.reload()}
+                      >
+                        Reload page
+                      </button>
+                    </div>
+                  }
+                >
+                  <SimpleTradingChart 
+                    data={candleData || []} 
+                    height={400} 
+                    pairName={selectedPair.display_name} 
+                  />
+                </ErrorBoundary>
+              ) : (
+                <div className="h-96 flex items-center justify-center">
+                  <p className="text-gray-500">No trading pair selected</p>
+                </div>
+              )}
+            </div>
+            
+            {/* Recent Trades */}
+            <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+              <h2 className="text-xl font-semibold mb-4">Your Recent Trades</h2>
+              
+              {trades.length > 0 ? (
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead>
+                      <tr>
+                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pair</th>
+                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200">
+                      {trades.map((trade) => (
+                        <tr key={trade.id}>
+                          <td className="px-4 py-2 whitespace-nowrap">
+                            {trade.pair?.display_name || `${trade.pair_id}`}
+                          </td>
+                          <td className="px-4 py-2 whitespace-nowrap">
+                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${trade.type === 'buy' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                              {trade.type.toUpperCase()}
+                            </span>
+                          </td>
+                          <td className="px-4 py-2 whitespace-nowrap">
+                            ${trade.price.toFixed(2)}
+                          </td>
+                          <td className="px-4 py-2 whitespace-nowrap">
+                            {trade.amount}
+                          </td>
+                          <td className="px-4 py-2 whitespace-nowrap">
+                            ${trade.total.toFixed(2)}
+                          </td>
+                          <td className="px-4 py-2 whitespace-nowrap">
+                            {new Date(trade.created_at).toLocaleString()}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <p className="text-gray-500">No trades yet. Start trading to earn rewards!</p>
+                </div>
+              )}
+            </div>
+          </div>
+          
+          {/* Order Form and Wallet (1/3 width on large screens) */}
+          <div className="space-y-6">
+            {/* Order Form */}
+            <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+              <h2 className="text-xl font-semibold mb-4">Place Order</h2>
+              
+              {selectedPair ? (
+                <TradingOrderForm 
+                  currentPrice={getCurrentPrice()} 
+                  pair={selectedPair} 
+                  onOrderSubmit={handleOrderSubmit}
+                />
+              ) : (
+                <div className="text-center py-4 text-gray-500">
+                  Select a trading pair to place an order
+                </div>
+              )}
+            </div>
+            
+            {/* Wallet Balances */}
+            <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+              <h2 className="text-xl font-semibold mb-4">Your Wallet</h2>
+              
+              {wallets.length > 0 ? (
+                <div className="space-y-4">
+                  {wallets.map(wallet => (
+                    <div key={wallet.id} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                      <div>
+                        <span className="font-medium">{wallet.currency}</span>
+                      </div>
+                      <div className="text-right">
+                        <div className="font-semibold">{wallet.balance.toFixed(6)}</div>
+                        <div className="text-xs text-gray-500">
+                          ≈ ${(wallet.balance * (wallet.currency === 'USDT' ? 1 : getCurrentPrice())).toFixed(2)}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-4 text-gray-500">
+                  No wallet data available
+                </div>
+              )}
+            </div>
+            
+            {/* Live Coin Prices */}
+            <CoinPriceList 
+              pairs={pairs} 
+              onSelectPair={handlePairSelect} 
+            />
+          </div>
+        </div>
+      ) : (
+        /* Referral Interface */
+        <ReferralTracker />
+      )}
+    </div>
+  );
+}

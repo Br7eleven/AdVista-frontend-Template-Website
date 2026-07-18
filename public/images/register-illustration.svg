@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="200px" height="200px" viewBox="0 0 200 200" version="1.1" xmlns="http://www.w3.org/2000/svg">
+    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g transform="translate(20, 10)">
+            <!-- Person -->
+            <circle fill="#A5D6A7" cx="80" cy="40" r="20"></circle> <!-- Head with green hat -->
+            <path d="M65,40 C65,30 75,25 80,30 C85,25 95,30 95,40 C95,55 85,60 80,60 C75,60 65,55 65,40 Z" fill="#A5D6A7"></path> <!-- Hat -->
+            <circle fill="#F8D2B8" cx="80" cy="42" r="15"></circle> <!-- Face -->
+            <ellipse fill="#FFFFFF" cx="75" cy="40" rx="3" ry="4"></ellipse> <!-- Left eye -->
+            <ellipse fill="#FFFFFF" cx="85" cy="40" rx="3" ry="4"></ellipse> <!-- Right eye -->
+            <circle fill="#333333" cx="75" cy="40" r="1.5"></circle> <!-- Left pupil -->
+            <circle fill="#333333" cx="85" cy="40" r="1.5"></circle> <!-- Right pupil -->
+            <path d="M77,48 C79,50 81,50 83,48" stroke="#333333" stroke-width="1.5" stroke-linecap="round"></path> <!-- Smile -->
+            
+            <!-- Clipboard and form -->
+            <rect fill="#E6E6E6" x="40" y="70" width="80" height="100" rx="4"></rect>
+            <rect fill="#FFFFFF" x="45" y="75" width="70" height="90" rx="2"></rect>
+            
+            <!-- Form elements -->
+            <rect fill="#EEEEEE" x="50" y="85" width="60" height="10" rx="2"></rect>
+            <rect fill="#EEEEEE" x="50" y="105" width="60" height="10" rx="2"></rect>
+            <rect fill="#EEEEEE" x="50" y="125" width="60" height="10" rx="2"></rect>
+            
+            <!-- Checkboxes -->
+            <rect fill="#FFFFFF" stroke="#CCCCCC" stroke-width="1" x="50" y="145" width="8" height="8" rx="1"></rect>
+            <path d="M52,149 L54,151 L57,147" stroke="#4CAF50" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+            
+            <!-- Submit button -->
+            <rect fill="#4CAF50" x="50" y="160" width="60" height="10" rx="2"></rect>
+            
+            <!-- Person's arms -->
+            <path d="M70,60 L60,80 L50,90" stroke="#F8D2B8" stroke-width="8" stroke-linecap="round"></path> <!-- Left arm -->
+            <path d="M90,60 L100,80 L110,90" stroke="#F8D2B8" stroke-width="8" stroke-linecap="round"></path> <!-- Right arm -->
+            
+            <!-- Decorative elements -->
+            <path d="M140,40 C150,30 160,50 150,60" stroke="#4CAF50" stroke-width="2" fill="none"></path>
+            <path d="M145,35 C155,25 165,45 155,55" stroke="#4CAF50" stroke-width="2" fill="none"></path>
+            <path d="M10,50 C0,40 10,20 20,30" stroke="#4CAF50" stroke-width="2" fill="none"></path>
+            <path d="M15,55 C5,45 15,25 25,35" stroke="#4CAF50" stroke-width="2" fill="none"></path>
+            
+            <!-- Pen -->
+            <path d="M120,100 L130,90 L135,95 L125,105 Z" fill="#FFC107"></path>
+            <rect fill="#795548" x="130" y="90" width="10" height="2" transform="rotate(45 135 91)"></rect>
+        </g>
+    </g>
+</svg>

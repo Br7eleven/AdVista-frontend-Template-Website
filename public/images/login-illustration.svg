@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="200px" height="200px" viewBox="0 0 200 200" version="1.1" xmlns="http://www.w3.org/2000/svg">
+    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g transform="translate(20, 20)">
+            <!-- Laptop -->
+            <rect fill="#E6E6E6" x="20" y="60" width="120" height="80" rx="4"></rect>
+            <rect fill="#FFFFFF" x="25" y="65" width="110" height="70" rx="2"></rect>
+            <rect fill="#CCCCCC" x="10" y="140" width="140" height="10" rx="2"></rect>
+            
+            <!-- Person -->
+            <circle fill="#FFD966" cx="70" cy="40" r="20"></circle> <!-- Head - yellow hair -->
+            <path d="M55,40 C55,30 65,25 70,30 C75,25 85,30 85,40 C85,55 75,60 70,60 C65,60 55,55 55,40 Z" fill="#FFD966"></path> <!-- Hair -->
+            <circle fill="#F8D2B8" cx="70" cy="42" r="15"></circle> <!-- Face -->
+            <ellipse fill="#FFFFFF" cx="65" cy="40" rx="3" ry="4"></ellipse> <!-- Left eye -->
+            <ellipse fill="#FFFFFF" cx="75" cy="40" rx="3" ry="4"></ellipse> <!-- Right eye -->
+            <circle fill="#333333" cx="65" cy="40" r="1.5"></circle> <!-- Left pupil -->
+            <circle fill="#333333" cx="75" cy="40" r="1.5"></circle> <!-- Right pupil -->
+            <path d="M67,48 C69,50 71,50 73,48" stroke="#333333" stroke-width="1.5" stroke-linecap="round"></path> <!-- Smile -->
+            
+            <!-- Body -->
+            <path d="M60,60 L50,100 L90,100 L80,60 Z" fill="#4CAF50"></path> <!-- Shirt - green -->
+            <path d="M50,100 L45,120 L55,120 L60,100 Z" fill="#F8D2B8"></path> <!-- Left arm -->
+            <path d="M90,100 L95,120 L85,120 L80,100 Z" fill="#F8D2B8"></path> <!-- Right arm -->
+            
+            <!-- Keyboard typing -->
+            <rect fill="#EEEEEE" x="40" y="90" width="60" height="20" rx="2"></rect>
+            <rect fill="#CCCCCC" x="45" y="95" width="5" height="5" rx="1"></rect>
+            <rect fill="#CCCCCC" x="55" y="95" width="5" height="5" rx="1"></rect>
+            <rect fill="#CCCCCC" x="65" y="95" width="5" height="5" rx="1"></rect>
+            <rect fill="#CCCCCC" x="75" y="95" width="5" height="5" rx="1"></rect>
+            <rect fill="#CCCCCC" x="85" y="95" width="5" height="5" rx="1"></rect>
+            <rect fill="#CCCCCC" x="45" y="105" width="5" height="5" rx="1"></rect>
+            <rect fill="#CCCCCC" x="55" y="105" width="5" height="5" rx="1"></rect>
+            <rect fill="#CCCCCC" x="65" y="105" width="20" height="5" rx="1"></rect>
+            <rect fill="#CCCCCC" x="90" y="105" width="5" height="5" rx="1"></rect>
+            
+            <!-- Decorative elements -->
+            <path d="M140,40 C150,30 160,50 150,60" stroke="#4CAF50" stroke-width="2" fill="none"></path>
+            <path d="M145,35 C155,25 165,45 155,55" stroke="#4CAF50" stroke-width="2" fill="none"></path>
+            <path d="M10,50 C0,40 10,20 20,30" stroke="#4CAF50" stroke-width="2" fill="none"></path>
+            <path d="M15,55 C5,45 15,25 25,35" stroke="#4CAF50" stroke-width="2" fill="none"></path>
+        </g>
+    </g>
+</svg>
