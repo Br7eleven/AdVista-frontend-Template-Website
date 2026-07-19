@@ -51,8 +51,8 @@ const Navigation = () => {
 
   const isActive = (path: string) => {
     return location.pathname === path
-      ? 'bg-royal-50 dark:bg-pin-element text-royal-700 dark:text-white font-semibold'
-      : 'text-gray-700 dark:text-pin-muted hover:bg-gray-50 dark:hover:bg-pin-element hover:text-gray-900 dark:hover:text-white';
+      ? 'bg-royal-50 dark:bg-dark-500 text-royal-700 dark:text-white font-semibold'
+      : 'text-gray-700 dark:text-dark-200 hover:bg-gray-50 dark:hover:bg-dark-500 hover:text-gray-900 dark:hover:text-white';
   };
 
   const navLinks = [
@@ -120,7 +120,7 @@ const Navigation = () => {
       </header>
 
       {/* Desktop Sidebar */}
-      <nav className="hidden md:flex fixed z-40 top-0 left-0 h-full w-64 flex-col justify-between bg-white dark:bg-pin-surface border-r border-gray-200 dark:border-white/10 text-gray-900 dark:text-white">
+      <nav className="hidden md:flex fixed z-40 top-0 left-0 h-full w-64 flex-col justify-between bg-white dark:bg-dark-600 border-r border-gray-200 dark:border-white/10 text-gray-900 dark:text-white">
         <div>
           <div className="p-6 flex items-center gap-3">
             <span className="brand-mark">A</span>
@@ -137,7 +137,7 @@ const Navigation = () => {
                     className="w-10 h-10 rounded-full object-cover ring-2 ring-royal-600/25"
                   />
                 ) : (
-                  <div className="w-10 h-10 rounded-full bg-royal-50 dark:bg-pin-element flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-full bg-royal-50 dark:bg-dark-500 flex items-center justify-center">
                     <User size={20} className="text-royal-600 dark:text-royal-400" />
                   </div>
                 )}
@@ -165,7 +165,7 @@ const Navigation = () => {
           <button
             type="button"
             onClick={handleSignOut}
-            className="flex items-center space-x-3 p-3 w-full rounded-2xl text-gray-700 dark:text-pin-muted hover:bg-royal-50 dark:hover:bg-pin-element hover:text-royal-700 dark:hover:text-royal-400 transition text-left"
+            className="flex items-center space-x-3 p-3 w-full rounded-2xl text-gray-700 dark:text-dark-200 hover:bg-royal-50 dark:hover:bg-dark-500 hover:text-royal-700 dark:hover:text-royal-400 transition text-left"
           >
             <LogOut size={20} />
             <span>Sign Out</span>
@@ -180,7 +180,7 @@ const Navigation = () => {
         }`}
         aria-hidden={!isMobileMenuOpen}
       >
-        <div className="flex flex-col h-full mx-0 bg-white/95 dark:bg-pin-surface/98 backdrop-blur-2xl border-l border-gray-200/80 dark:border-white/10 text-gray-900 dark:text-white shadow-2xl">
+        <div className="flex flex-col h-full mx-0 bg-white dark:bg-dark-600 backdrop-blur-2xl border-l border-gray-200 dark:border-white/10 text-gray-900 dark:text-white shadow-2xl">
           {userProfile && (
             <div className="flex items-center gap-3 p-5 border-b border-gray-200 dark:border-white/10">
               {userProfile.avatar_url ? (
@@ -190,7 +190,7 @@ const Navigation = () => {
                   className="w-12 h-12 rounded-2xl object-cover ring-2 ring-royal-600/30"
                 />
               ) : (
-                <div className="w-12 h-12 rounded-2xl bg-royal-50 dark:bg-pin-element flex items-center justify-center">
+                <div className="w-12 h-12 rounded-2xl bg-royal-50 dark:bg-dark-500 flex items-center justify-center">
                   <User size={24} className="text-royal-600 dark:text-royal-400" />
                 </div>
               )}
@@ -198,7 +198,7 @@ const Navigation = () => {
                 <p className="font-semibold truncate text-gray-900 dark:text-white font-display">
                   {userProfile.name || 'User'}
                 </p>
-                <p className="text-xs text-royal-600 dark:text-pin-muted font-medium">Your space</p>
+                <p className="text-xs text-royal-600 dark:text-dark-200 font-medium">Your space</p>
               </div>
             </div>
           )}
@@ -222,7 +222,7 @@ const Navigation = () => {
             <button
               type="button"
               onClick={handleSignOut}
-              className="flex items-center space-x-3 p-3.5 w-full rounded-2xl bg-royal-50 dark:bg-pin-element text-royal-700 dark:text-royal-400 hover:bg-royal-100 dark:hover:bg-[#2c303a] transition text-left font-semibold"
+              className="flex items-center space-x-3 p-3.5 w-full rounded-2xl bg-royal-50 dark:bg-dark-500 text-royal-700 dark:text-royal-400 hover:bg-royal-100 dark:hover:bg-dark-400 transition text-left font-semibold"
             >
               <LogOut size={20} />
               <span>Sign Out</span>
@@ -271,7 +271,7 @@ const Navigation = () => {
 
 export default function Layout() {
   return (
-    <div className="min-h-screen bg-pin-canvas transition-colors duration-300">
+    <div className="min-h-screen bg-gray-50 dark:bg-dark-800 transition-colors duration-300">
       <Navigation />
       <main className="md:ml-64 p-4 md:p-8 pt-[4.75rem] md:pt-8 pb-32 md:pb-8">
         <div className="max-w-7xl mx-auto">

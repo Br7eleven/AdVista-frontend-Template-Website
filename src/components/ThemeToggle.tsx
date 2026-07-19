@@ -25,7 +25,7 @@ export default function ThemeToggle({ compact = false }: ThemeToggleProps) {
     <button
       type="button"
       onClick={toggleTheme}
-      className="p-3 rounded-2xl hover:bg-royal-50 dark:hover:bg-pin-element transition-colors flex items-center space-x-3 w-full text-gray-700 dark:text-pin-muted hover:text-royal-700 dark:hover:text-white"
+      className="p-3 rounded-2xl hover:bg-royal-50 dark:hover:bg-dark-500 transition-colors flex items-center space-x-3 w-full text-gray-700 dark:text-dark-200 hover:text-royal-700 dark:hover:text-white"
       aria-label="Toggle theme"
     >
       {theme === 'light' ? (
@@ -36,7 +36,7 @@ export default function ThemeToggle({ compact = false }: ThemeToggleProps) {
       ) : (
         <>
           <Sun size={20} className="text-amber-300" />
-          <span className="hidden md:inline text-white font-medium">Light Mode</span>
+          <span className="hidden md:inline font-medium text-gray-700 dark:text-white">Light Mode</span>
         </>
       )}
     </button>

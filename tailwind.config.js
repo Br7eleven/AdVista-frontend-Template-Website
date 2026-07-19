@@ -70,17 +70,6 @@ export default {
           800: '#121214',
           900: '#0D0F14',
         },
-        /* Semantic pin tokens */
-        pin: {
-          canvas: '#121214',
-          surface: '#1A1B20',
-          element: '#252830',
-          muted: '#9BA3B2',
-          text: '#FFFFFF',
-          soft: '#F5F5F5',
-          accent: '#E60023',
-          border: 'rgba(255,255,255,0.1)',
-        },
         light: '#F5F5F5',
       },
       borderRadius: {

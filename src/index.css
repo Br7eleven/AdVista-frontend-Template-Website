@@ -24,9 +24,18 @@
 
 @layer base {
   body {
-    @apply transition-colors duration-200 font-sans antialiased;
+    @apply transition-colors duration-200 font-sans antialiased bg-gray-50 dark:bg-dark-800 text-gray-900 dark:text-white;
     background-color: var(--pin-canvas);
     color: var(--pin-text);
+  }
+
+  /* Force readable headings/body copy in light mode */
+  html:not(.dark) {
+    color-scheme: light;
+  }
+
+  html.dark {
+    color-scheme: dark;
   }
 }
 

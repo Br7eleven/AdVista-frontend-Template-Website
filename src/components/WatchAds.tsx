@@ -129,7 +129,7 @@ export default function WatchAds() {
                   stroke="currentColor"
                   strokeWidth="8"
                   fill="transparent"
-                  className="text-gray-200 dark:text-dark-400"
+                  className="text-gray-500 dark:text-dark-200"
                 />
                 <circle
                   cx="64"
