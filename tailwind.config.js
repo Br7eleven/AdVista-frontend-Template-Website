@@ -41,22 +41,79 @@ export default {
           800: '#233c31',
           900: '#111e19',
         },
-        dark: {
-          50: '#eaeaeb',
-          100: '#c5c6c8',
-          200: '#a1a2a5',
-          300: '#7c7e82',
-          400: '#57595f',
-          500: '#33353c',
-          600: '#292b30',
-          700: '#1f2024',
-          800: '#151518',
-          900: '#0a0a0c',
+        /* Monza / Pinterest crimson — accents only */
+        royal: {
+          50: '#fff1f2',
+          100: '#ffe0e4',
+          200: '#ffc7ce',
+          300: '#ff9aa6',
+          400: '#ff6175',
+          500: '#f51232',
+          600: '#E60023',
+          700: '#c0001c',
+          800: '#9e001a',
+          900: '#82071c',
         },
-        light: '#f8f9fa',
+        /*
+         * Pinterest 4-tier dark layers (no pure black):
+         * 900/800 = Canvas | 700/600 = Widget L1 | 500 = Widget L2 | 200 = muted text
+         */
+        dark: {
+          50: '#f5f5f5',
+          100: '#e8e9eb',
+          200: '#9BA3B2',
+          300: '#6b7280',
+          400: '#3a3d45',
+          500: '#252830',
+          600: '#1A1B20',
+          700: '#16171b',
+          800: '#121214',
+          900: '#0D0F14',
+        },
+        /* Semantic pin tokens */
+        pin: {
+          canvas: '#121214',
+          surface: '#1A1B20',
+          element: '#252830',
+          muted: '#9BA3B2',
+          text: '#FFFFFF',
+          soft: '#F5F5F5',
+          accent: '#E60023',
+          border: 'rgba(255,255,255,0.1)',
+        },
+        light: '#F5F5F5',
+      },
+      borderRadius: {
+        widget: '16px',
+      },
+      fontFamily: {
+        display: ['"Sora"', 'system-ui', 'sans-serif'],
+        sans: ['"Sora"', 'system-ui', 'sans-serif'],
       },
       backgroundColor: {
-        'dark-gradient': 'linear-gradient(to right, #1f2024, #33353c)',
+        'dark-gradient': 'linear-gradient(to right, #121214, #1A1B20)',
+      },
+      keyframes: {
+        'dock-pop': {
+          '0%': { transform: 'scale(0.86)', opacity: '0.6' },
+          '60%': { transform: 'scale(1.06)' },
+          '100%': { transform: 'scale(1)', opacity: '1' },
+        },
+        'nav-in': {
+          '0%': { transform: 'translateY(12px)', opacity: '0' },
+          '100%': { transform: 'translateY(0)', opacity: '1' },
+        },
+      },
+      animation: {
+        'dock-pop': 'dock-pop 0.35s cubic-bezier(0.22, 1, 0.36, 1)',
+        'nav-in': 'nav-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both',
+      },
+      boxShadow: {
+        glass: '0 8px 32px rgba(15, 15, 20, 0.12), inset 0 1px 0 rgba(255,255,255,0.35)',
+        'glass-dark': '0 12px 40px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255,255,255,0.08)',
+        dock: '0 10px 40px rgba(230, 0, 35, 0.18), 0 4px 16px rgba(15, 15, 20, 0.1)',
+        'dock-dark': '0 12px 40px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255,255,255,0.06)',
+        widget: '0 8px 28px rgba(0, 0, 0, 0.35)',
       },
     },
   },

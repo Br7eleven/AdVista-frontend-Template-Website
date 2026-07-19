@@ -3,7 +3,7 @@ import { Bell, CheckCircle, AlertCircle, Info, XCircle } from 'lucide-react';
 import { fetchNotifications, markNotificationAsRead, AppNotification } from '../lib/userDataService';
 import { supabase } from '../lib/supabase';
 
-export default function NotificationBell() {
+export default function NotificationBell({ glass = false }: { glass?: boolean }) {
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -78,11 +78,15 @@ export default function NotificationBell() {
     <div className="relative" ref={dropdownRef}>
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className="p-2 text-gray-700 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white transition-colors relative"
+        className={
+          glass
+            ? 'glass-chip h-10 w-10 text-gray-800 dark:text-gray-100 relative'
+            : 'p-2 text-gray-700 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white transition-colors relative'
+        }
       >
-        <Bell size={20} />
+        <Bell size={glass ? 18 : 20} strokeWidth={2.25} />
         {unreadCount > 0 && (
-          <span className="absolute top-1 right-1 bg-secondary-500 text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full border-2 border-white dark:border-dark-600">
+          <span className="absolute top-1 right-1 bg-royal-600 text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full border-2 border-white/80 dark:border-dark-700 shadow-sm">
             {unreadCount}
           </span>
         )}

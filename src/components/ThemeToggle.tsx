@@ -13,14 +13,10 @@ export default function ThemeToggle({ compact = false }: ThemeToggleProps) {
       <button
         type="button"
         onClick={toggleTheme}
-        className="p-2.5 rounded-lg bg-white/80 dark:bg-dark-600/80 border border-gray-200 dark:border-dark-500 shadow-sm hover:bg-gray-100 dark:hover:bg-dark-500 transition-colors backdrop-blur-sm"
+        className="glass-chip h-10 w-10 text-gray-800 dark:text-amber-200"
         aria-label="Toggle theme"
       >
-        {theme === 'light' ? (
-          <Moon size={20} className="text-gray-700" />
-        ) : (
-          <Sun size={20} className="text-amber-300" />
-        )}
+        {theme === 'light' ? <Moon size={18} strokeWidth={2.25} /> : <Sun size={18} strokeWidth={2.25} />}
       </button>
     );
   }
@@ -29,18 +25,18 @@ export default function ThemeToggle({ compact = false }: ThemeToggleProps) {
     <button
       type="button"
       onClick={toggleTheme}
-      className="p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-dark-400 transition-colors flex items-center space-x-3 w-full text-gray-700 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white"
+      className="p-3 rounded-2xl hover:bg-royal-50 dark:hover:bg-pin-element transition-colors flex items-center space-x-3 w-full text-gray-700 dark:text-pin-muted hover:text-royal-700 dark:hover:text-white"
       aria-label="Toggle theme"
     >
       {theme === 'light' ? (
         <>
           <Moon size={20} className="text-gray-700" />
-          <span className="hidden md:inline">Dark Mode</span>
+          <span className="hidden md:inline font-medium">Dark Mode</span>
         </>
       ) : (
         <>
           <Sun size={20} className="text-amber-300" />
-          <span className="hidden md:inline text-white">Light Mode</span>
+          <span className="hidden md:inline text-white font-medium">Light Mode</span>
         </>
       )}
     </button>

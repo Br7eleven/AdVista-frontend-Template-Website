@@ -2,12 +2,261 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --pin-canvas: #f4f2f3;
+  --pin-surface: #ffffff;
+  --pin-element: #f3f4f6;
+  --pin-text: #111827;
+  --pin-muted: #6b7280;
+  --pin-accent: #e60023;
+  --pin-border: rgba(15, 15, 20, 0.08);
+}
+
+.dark {
+  --pin-canvas: #121214;
+  --pin-surface: #1a1b20;
+  --pin-element: #252830;
+  --pin-text: #ffffff;
+  --pin-muted: #9ba3b2;
+  --pin-accent: #e60023;
+  --pin-border: rgba(255, 255, 255, 0.1);
+}
+
 @layer base {
   body {
-    @apply transition-colors duration-200 bg-white text-gray-900;
+    @apply transition-colors duration-200 font-sans antialiased;
+    background-color: var(--pin-canvas);
+    color: var(--pin-text);
   }
-  
-  .dark body {
-    @apply bg-dark-800 text-light;
+}
+
+@layer components {
+  /* Widget hierarchy helpers */
+  .widget-surface {
+    background-color: var(--pin-surface);
+    border: 1px solid var(--pin-border);
+    border-radius: 16px;
+  }
+
+  .widget-element {
+    background-color: var(--pin-element);
+    border: 1px solid var(--pin-border);
+    border-radius: 16px;
+  }
+
+  .text-pin {
+    color: var(--pin-text);
+  }
+
+  .text-pin-muted {
+    color: var(--pin-muted);
+  }
+
+  .border-pin {
+    border-color: var(--pin-border);
+  }
+
+  .bg-pin-canvas {
+    background-color: var(--pin-canvas);
+  }
+
+  .bg-pin-surface {
+    background-color: var(--pin-surface);
+  }
+
+  .bg-pin-element {
+    background-color: var(--pin-element);
+  }
+
+  .glass-header {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.45);
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.82) 0%,
+      rgba(255, 255, 255, 0.62) 100%
+    );
+    backdrop-filter: blur(22px) saturate(180%);
+    -webkit-backdrop-filter: blur(22px) saturate(180%);
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5) inset, 0 8px 24px rgba(15, 15, 20, 0.06);
+  }
+
+  .dark .glass-header {
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+    background: linear-gradient(
+      180deg,
+      rgba(26, 27, 32, 0.92) 0%,
+      rgba(18, 18, 20, 0.88) 100%
+    );
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.06) inset, 0 10px 28px rgba(0, 0, 0, 0.4);
+  }
+
+  .glass-dock {
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    background: linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.9) 0%,
+      rgba(255, 250, 251, 0.78) 55%,
+      rgba(255, 241, 242, 0.65) 100%
+    );
+    backdrop-filter: blur(28px) saturate(190%);
+    -webkit-backdrop-filter: blur(28px) saturate(190%);
+    box-shadow:
+      0 10px 40px rgba(230, 0, 35, 0.12),
+      0 4px 16px rgba(15, 15, 20, 0.08),
+      inset 0 1px 0 rgba(255, 255, 255, 0.75);
+  }
+
+  .dark .glass-dock {
+    border-color: rgba(255, 255, 255, 0.1);
+    background: linear-gradient(
+      145deg,
+      rgba(37, 40, 48, 0.94) 0%,
+      rgba(26, 27, 32, 0.92) 55%,
+      rgba(18, 18, 20, 0.9) 100%
+    );
+    box-shadow:
+      0 14px 44px rgba(0, 0, 0, 0.55),
+      0 0 0 1px rgba(255, 255, 255, 0.06),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  }
+
+  .glass-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 1rem;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  .dark .glass-chip {
+    background: rgba(37, 40, 48, 0.85);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .glass-chip:active {
+    transform: scale(0.94);
+  }
+
+  .dock-tab {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.125rem;
+    min-width: 0;
+    flex: 1 1 0%;
+    padding: 0.375rem 0.25rem;
+    border-radius: 1rem;
+    transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .dock-tab:active {
+    transform: scale(0.92);
+  }
+
+  .dock-tab-icon {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2rem;
+    border-radius: 9999px;
+    transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .dock-tab-active .dock-tab-icon {
+    background-color: #e60023;
+    color: #fff;
+    box-shadow: 0 6px 16px rgba(230, 0, 35, 0.4);
+    animation: dock-pop 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .dark .dock-tab-active .dock-tab-icon {
+    background-color: #e60023;
+    box-shadow: 0 6px 18px rgba(230, 0, 35, 0.5);
+  }
+
+  .dock-tab-label {
+    position: relative;
+    z-index: 1;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.025em;
+    transition: color 0.3s ease;
+  }
+
+  .dock-tab-active .dock-tab-label {
+    color: #e60023;
+  }
+
+  .dark .dock-tab-active .dock-tab-label {
+    color: #ff9aa6;
+  }
+
+  .dock-tab:not(.dock-tab-active) .dock-tab-label,
+  .dock-tab:not(.dock-tab-active) .dock-tab-icon {
+    color: #6b7280;
+  }
+
+  .dark .dock-tab:not(.dock-tab-active) .dock-tab-label,
+  .dark .dock-tab:not(.dock-tab-active) .dock-tab-icon {
+    color: #9ba3b2;
+  }
+
+  .brand-mark {
+    display: inline-flex;
+    height: 2rem;
+    width: 2rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    background-color: #e60023;
+    color: #fff;
+    font-family: "Sora", system-ui, sans-serif;
+    font-weight: 700;
+    font-size: 0.875rem;
+    box-shadow: 0 6px 14px rgba(230, 0, 35, 0.35);
+  }
+
+  .image-scrim {
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.4), transparent 55%);
+  }
+}
+
+@layer utilities {
+  .safe-bottom {
+    padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+  }
+}
+
+@keyframes dock-pop {
+  0% {
+    transform: scale(0.86);
+    opacity: 0.6;
+  }
+  60% {
+    transform: scale(1.06);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dock-tab,
+  .dock-tab-icon,
+  .glass-chip,
+  .dock-tab-active .dock-tab-icon,
+  .animate-nav-in {
+    animation: none !important;
+    transition: none !important;
   }
 }

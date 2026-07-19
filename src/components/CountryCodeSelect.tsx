@@ -84,10 +84,10 @@ const CountryCodeSelect: React.FC<CountryCodeSelectProps> = ({
   };
 
   return (
-    <div className="relative" ref={dropdownRef}>
+    <div className="relative shrink-0" ref={dropdownRef}>
       <button
         type="button"
-        className={`flex items-center space-x-1 px-3 py-2.5 border rounded-lg transition ${
+        className={`flex items-center justify-center gap-1 px-2.5 sm:px-3 py-2.5 h-[42px] border rounded-lg transition whitespace-nowrap ${
           disabled
             ? 'bg-gray-100 dark:bg-dark-500 cursor-not-allowed opacity-70'
             : 'bg-white dark:bg-dark-700 cursor-pointer hover:bg-gray-50 dark:hover:bg-dark-500'
@@ -95,22 +95,22 @@ const CountryCodeSelect: React.FC<CountryCodeSelectProps> = ({
         onClick={() => !disabled && setIsOpen(!isOpen)}
         disabled={disabled}
       >
-        <span>{selectedCountry.flag}</span>
-        <span>{selectedCountry.code}</span>
-        <ChevronDown size={16} className={`transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        <span className="text-base leading-none">{selectedCountry.flag}</span>
+        <span className="text-sm font-medium">{selectedCountry.code}</span>
+        <ChevronDown size={14} className={`shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
       {isOpen && (
-        <div className="absolute z-10 mt-1 w-64 bg-white dark:bg-dark-600 border border-gray-200 dark:border-dark-500 rounded-lg shadow-lg text-gray-900 dark:text-light">
+        <div className="absolute left-0 z-50 mt-1 w-64 max-w-[min(16rem,calc(100vw-2rem))] bg-white dark:bg-dark-600 border border-gray-200 dark:border-dark-500 rounded-lg shadow-lg text-gray-900 dark:text-light">
           <div className="p-2 border-b border-gray-200 dark:border-dark-500">
             <div className="flex items-center space-x-2 px-2 py-1 bg-gray-100 dark:bg-dark-700 rounded">
-              <Search size={16} className="text-gray-400" />
+              <Search size={16} className="text-gray-400 shrink-0" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search country or code"
-                className="w-full bg-transparent border-none focus:outline-none text-sm text-gray-900 dark:text-light placeholder:text-gray-400"
+                className="w-full min-w-0 bg-transparent border-none focus:outline-none text-sm text-gray-900 dark:text-light placeholder:text-gray-400"
                 autoFocus
               />
             </div>
@@ -126,8 +126,8 @@ const CountryCodeSelect: React.FC<CountryCodeSelectProps> = ({
                   onClick={() => handleSelectCountry(country)}
                 >
                   <span className="text-lg">{country.flag}</span>
-                  <div>
-                    <p className="text-sm font-medium text-gray-900 dark:text-light">{country.name}</p>
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-gray-900 dark:text-light truncate">{country.name}</p>
                     <p className="text-xs text-gray-500 dark:text-gray-400">{country.code}</p>
                   </div>
                 </button>

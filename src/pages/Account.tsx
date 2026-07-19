@@ -322,12 +322,12 @@ export default function Account() {
   };
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-3xl font-bold text-gray-900 dark:text-light">Account Settings</h1>
+    <div className="space-y-4 sm:space-y-6 pb-2">
+      <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-light">Account Settings</h1>
 
-      <div className="bg-white dark:bg-dark-600 p-6 rounded-lg shadow-sm border border-gray-100 dark:border-dark-500 text-gray-900 dark:text-light">
-        <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-light">Profile Information</h2>
-        <div className="flex flex-col md:flex-row gap-6 mb-6">
+      <div className="bg-white dark:bg-dark-600 p-4 sm:p-6 rounded-lg shadow-sm border border-gray-100 dark:border-dark-500 text-gray-900 dark:text-light">
+        <h2 className="text-lg sm:text-xl font-semibold mb-4 text-gray-900 dark:text-light">Profile Information</h2>
+        <div className="flex flex-col md:flex-row gap-6 mb-2 md:mb-6">
           <div className="flex flex-col items-center space-y-3">
             <div className="relative">
               {user.avatar_url ? (
@@ -352,19 +352,19 @@ export default function Account() {
                 />
               </label>
             </div>
-            <p className="text-sm text-gray-500 dark:text-gray-400">Click to change profile picture</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 text-center">Tap to change profile picture</p>
           </div>
           
-          <div className="flex-1 space-y-4">
+          <div className="flex-1 space-y-4 min-w-0">
             <div>
               <label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Name</label>
-              <div className="flex items-center space-x-3">
-                <User className="w-5 h-5 text-gray-400" />
+              <div className="flex items-center gap-2 sm:gap-3">
+                <User className="w-5 h-5 text-gray-400 shrink-0" />
                 <input
                   type="text"
                   value={user.name}
                   onChange={(e) => setUser({ ...user, name: e.target.value })}
-                  className="flex-1 px-4 py-2 border border-gray-200 dark:border-dark-400 bg-white dark:bg-dark-700 text-gray-900 dark:text-light rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
+                  className="min-w-0 flex-1 px-3 sm:px-4 py-2.5 border border-gray-200 dark:border-dark-400 bg-white dark:bg-dark-700 text-gray-900 dark:text-light rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
                   placeholder="Your name"
                 />
               </div>
@@ -372,13 +372,13 @@ export default function Account() {
             
             <div>
               <label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Email</label>
-              <div className="flex items-center space-x-3">
-                <Mail className="w-5 h-5 text-gray-400" />
+              <div className="flex items-center gap-2 sm:gap-3">
+                <Mail className="w-5 h-5 text-gray-400 shrink-0" />
                 <input
                   type="email"
                   value={user.email}
                   onChange={(e) => setUser({ ...user, email: e.target.value })}
-                  className="flex-1 px-4 py-2 border border-gray-200 dark:border-dark-400 bg-white dark:bg-dark-700 text-gray-900 dark:text-light rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
+                  className="min-w-0 flex-1 px-3 sm:px-4 py-2.5 border border-gray-200 dark:border-dark-400 bg-white dark:bg-dark-700 text-gray-900 dark:text-light rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
                   placeholder="your@email.com"
                 />
               </div>
@@ -386,29 +386,31 @@ export default function Account() {
             
             <div>
               <label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Phone Number</label>
-              <div className="flex items-center space-x-3">
-                <Phone className="w-5 h-5 text-gray-400" />
-                <div className="flex flex-1 space-x-2">
-                  <CountryCodeSelect 
-                    selectedCode={countryCode} 
-                    onSelect={setCountryCode} 
-                  />
+              <div className="flex items-center gap-2 sm:gap-3">
+                <Phone className="w-5 h-5 text-gray-400 shrink-0" />
+                <div className="flex flex-1 items-center gap-2 min-w-0">
+                  <div className="shrink-0">
+                    <CountryCodeSelect 
+                      selectedCode={countryCode} 
+                      onSelect={setCountryCode} 
+                    />
+                  </div>
                   <input
                     type="tel"
                     value={phoneWithoutCode}
                     onChange={(e) => setPhoneWithoutCode(e.target.value)}
-                    className="flex-1 px-4 py-2 border border-gray-200 dark:border-dark-400 bg-white dark:bg-dark-700 text-gray-900 dark:text-light rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
+                    className="min-w-0 flex-1 w-full px-3 sm:px-4 py-2.5 border border-gray-200 dark:border-dark-400 bg-white dark:bg-dark-700 text-gray-900 dark:text-light rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
                     placeholder="7025551234"
                   />
                 </div>
               </div>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Enter your phone number without country code</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1.5 pl-7">Enter your phone number without country code</p>
             </div>
 
             <button
               onClick={handleUpdateProfile}
               disabled={loading}
-              className="w-full py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition disabled:bg-primary-400 disabled:cursor-not-allowed font-medium shadow-md shadow-primary-200 dark:shadow-none"
+              className="w-full py-2.5 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition disabled:bg-primary-400 disabled:cursor-not-allowed font-medium shadow-md shadow-primary-200 dark:shadow-none"
             >
               {loading ? 'Updating...' : 'Update Profile'}
             </button>
@@ -416,15 +418,15 @@ export default function Account() {
         </div>
       </div>
 
-      <div className="bg-white dark:bg-dark-600 p-6 rounded-lg shadow-sm border border-gray-100 dark:border-dark-500 text-gray-900 dark:text-light">
-        <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-light">Security</h2>
+      <div className="bg-white dark:bg-dark-600 p-4 sm:p-6 rounded-lg shadow-sm border border-gray-100 dark:border-dark-500 text-gray-900 dark:text-light">
+        <h2 className="text-lg sm:text-xl font-semibold mb-4 text-gray-900 dark:text-light">Security</h2>
         <form onSubmit={handleUpdatePassword} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Current Password</label>
             <input
               type="password"
               name="currentPassword"
-              className="w-full px-4 py-2 border border-gray-200 dark:border-dark-400 bg-white dark:bg-dark-700 text-gray-900 dark:text-light rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
+              className="w-full px-3 sm:px-4 py-2.5 border border-gray-200 dark:border-dark-400 bg-white dark:bg-dark-700 text-gray-900 dark:text-light rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
               placeholder="••••••••"
             />
           </div>
@@ -434,7 +436,7 @@ export default function Account() {
             <input
               type="password"
               name="newPassword"
-              className="w-full px-4 py-2 border border-gray-200 dark:border-dark-400 bg-white dark:bg-dark-700 text-gray-900 dark:text-light rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
+              className="w-full px-3 sm:px-4 py-2.5 border border-gray-200 dark:border-dark-400 bg-white dark:bg-dark-700 text-gray-900 dark:text-light rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
               placeholder="••••••••"
             />
           </div>
@@ -444,7 +446,7 @@ export default function Account() {
             <input
               type="password"
               name="confirmPassword"
-              className="w-full px-4 py-2 border border-gray-200 dark:border-dark-400 bg-white dark:bg-dark-700 text-gray-900 dark:text-light rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
+              className="w-full px-3 sm:px-4 py-2.5 border border-gray-200 dark:border-dark-400 bg-white dark:bg-dark-700 text-gray-900 dark:text-light rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
               placeholder="••••••••"
             />
           </div>
@@ -452,7 +454,7 @@ export default function Account() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition disabled:bg-primary-400 disabled:cursor-not-allowed font-medium shadow-md shadow-primary-200 dark:shadow-none"
+            className="w-full py-2.5 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition disabled:bg-primary-400 disabled:cursor-not-allowed font-medium shadow-md shadow-primary-200 dark:shadow-none"
           >
             {loading ? 'Updating...' : 'Update Password'}
           </button>
