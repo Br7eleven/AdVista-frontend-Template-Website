@@ -73,23 +73,23 @@ export default function Withdraw() {
   };
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-3xl font-bold text-gray-900 dark:text-light">Withdraw Earnings</h1>
+    <div className="space-y-4">
+      <h1 className="text-2xl font-bold text-gray-900 dark:text-light">Withdraw Earnings</h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-white dark:bg-dark-600 p-6 rounded-lg shadow-sm border border-gray-100 dark:border-dark-500 text-gray-900 dark:text-light">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="widget-surface p-4 sm:p-5 rounded-lg shadow-sm border-pin text-gray-900 dark:text-light">
           <div className="flex items-center space-x-3 mb-4">
-            <DollarSign className="w-6 h-6 text-primary-600 dark:text-primary-400" />
-            <h2 className="text-xl font-semibold">Available Balance</h2>
+            <DollarSign className="w-5 h-5 text-royal-600 dark:text-royal-400" />
+            <h2 className="text-base sm:text-lg font-semibold">Available Balance</h2>
           </div>
-          <div className="text-3xl font-bold mb-2">${stats.balance?.toFixed(2) || '0.00'}</div>
+          <div className="text-2xl sm:text-3xl font-bold mb-2">${stats.balance?.toFixed(2) || '0.00'}</div>
           <p className="text-gray-500 dark:text-gray-400">Minimum withdrawal: $5.00</p>
         </div>
 
-        <div className="bg-white dark:bg-dark-600 p-6 rounded-lg shadow-sm border border-gray-100 dark:border-dark-500 text-gray-900 dark:text-light">
+        <div className="widget-surface p-4 sm:p-5 rounded-lg shadow-sm border-pin text-gray-900 dark:text-light">
           <div className="flex items-center space-x-3 mb-4">
-            <CreditCard className="w-6 h-6 text-primary-600 dark:text-primary-400" />
-            <h2 className="text-xl font-semibold">Payment Method</h2>
+            <CreditCard className="w-5 h-5 text-royal-600 dark:text-royal-400" />
+            <h2 className="text-base sm:text-lg font-semibold">Payment Method</h2>
           </div>
           <select
             value={paymentMethod}
@@ -98,7 +98,7 @@ export default function Withdraw() {
               // Show payment details field for all methods except Bank Transfer
               setShowPaymentDetails(e.target.value !== '' && e.target.value !== 'bank');
             }}
-            className="w-full px-4 py-2 border border-gray-200 dark:border-dark-400 bg-white dark:bg-dark-700 text-gray-900 dark:text-light rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
+            className="auth-input"
           >
             <option value="">Select payment method</option>
             <option value="paypal">PayPal</option>
@@ -110,8 +110,8 @@ export default function Withdraw() {
         </div>
       </div>
 
-      <div className="bg-white dark:bg-dark-600 p-6 rounded-lg shadow-sm border border-gray-100 dark:border-dark-500 text-gray-900 dark:text-light">
-        <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-light">Request Withdrawal</h2>
+      <div className="widget-surface p-4 sm:p-5 rounded-lg shadow-sm border-pin text-gray-900 dark:text-light">
+        <h2 className="text-base sm:text-lg font-semibold mb-4 text-gray-900 dark:text-light">Request Withdrawal</h2>
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Amount to Withdraw</label>
@@ -123,12 +123,12 @@ export default function Withdraw() {
                 onChange={(e) => setWithdrawAmount(e.target.value)}
                 min="5"
                 step="0.01"
-                className="w-full pl-8 pr-4 py-2 border border-gray-200 dark:border-dark-400 bg-white dark:bg-dark-700 text-gray-900 dark:text-light rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
+                className="auth-input"
                 placeholder="0.00"
               />
             </div>
           </div>
-          
+
           {showPaymentDetails && (
             <div>
               <label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">
@@ -142,7 +142,7 @@ export default function Withdraw() {
                   type="text"
                   value={paymentDetails}
                   onChange={(e) => setPaymentDetails(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-200 dark:border-dark-400 bg-white dark:bg-dark-700 text-gray-900 dark:text-light rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
+                  className="w-full px-3 py-2.5 border border-gray-200 dark:border-dark-400 bg-white dark:bg-dark-700 text-gray-900 dark:text-light rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors text-sm"
                   placeholder={paymentMethod === 'paypal' ? 'your@email.com' :
                               paymentMethod === 'jazzcash' || paymentMethod === 'easypaisa' ? '03XX-XXXXXXX' :
                               paymentMethod === 'binance' ? '123456789' : ''}
@@ -153,15 +153,15 @@ export default function Withdraw() {
           <button
             onClick={handleWithdraw}
             disabled={!paymentMethod || !withdrawAmount || parseFloat(withdrawAmount) < 5 || (showPaymentDetails && !paymentDetails)}
-            className="w-full px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition disabled:opacity-50 font-medium shadow-md shadow-primary-200 dark:shadow-none"
+            className="auth-btn-primary text-center"
           >
             Request Withdrawal
           </button>
         </div>
       </div>
 
-      <div className="bg-white dark:bg-dark-600 p-6 rounded-lg shadow-sm border border-gray-100 dark:border-dark-500 text-gray-900 dark:text-light">
-        <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-light">Withdrawal History</h2>
+      <div className="widget-surface p-4 sm:p-5 rounded-lg shadow-sm border-pin text-gray-900 dark:text-light">
+        <h2 className="text-base sm:text-lg font-semibold mb-4 text-gray-900 dark:text-light">Withdrawal History</h2>
         {withdrawals.length > 0 ? (
           <div className="space-y-3">
             {withdrawals.map((withdrawal) => (
@@ -191,8 +191,8 @@ export default function Withdraw() {
         )}
       </div>
 
-      <div className="bg-white dark:bg-dark-600 p-6 rounded-lg shadow-sm border border-gray-100 dark:border-dark-500 text-gray-900 dark:text-light">
-        <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-light">Withdrawal Information</h2>
+      <div className="widget-surface p-4 sm:p-5 rounded-lg shadow-sm border-pin text-gray-900 dark:text-light">
+        <h2 className="text-base sm:text-lg font-semibold mb-4 text-gray-900 dark:text-light">Withdrawal Information</h2>
         <div className="space-y-4">
           <div>
             <h3 className="font-medium mb-1 text-gray-900 dark:text-light">Processing Time</h3>

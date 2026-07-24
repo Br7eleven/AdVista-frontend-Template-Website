@@ -254,10 +254,10 @@ export default function Earn() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-light">Earn Rewards</h1>
-        <button 
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-light">Earn Rewards</h1>
+        <button
           onClick={refreshData}
-          className="flex items-center space-x-2 px-4 py-2 bg-white dark:bg-dark-600 rounded-lg hover:bg-gray-50 dark:hover:bg-dark-700 transition border border-gray-200 dark:border-dark-500 text-gray-700 dark:text-light"
+          className="auth-btn-secondary sm:shrink-0"
           disabled={loading}
         >
           <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
@@ -266,12 +266,12 @@ export default function Earn() {
       </div>
       
       {/* Tabs */}
-      <div className="flex space-x-2 p-1 bg-gray-100 dark:bg-dark-700 rounded-xl w-fit">
+      <div className="flex space-x-2 p-1 bg-gray-100/80 dark:bg-dark-700/80 rounded-xl w-fit">
         <button
           onClick={() => setActiveTab('ads')}
           className={`flex items-center space-x-2 px-6 py-2.5 rounded-lg font-medium transition-all ${
             activeTab === 'ads'
-              ? 'bg-white dark:bg-dark-500 text-primary-600 dark:text-primary-400 shadow-sm'
+              ? 'bg-white dark:bg-dark-500 text-royal-600 dark:text-royal-400 shadow-sm'
               : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
           }`}
         >
@@ -282,7 +282,7 @@ export default function Earn() {
           onClick={() => setActiveTab('trading')}
           className={`flex items-center space-x-2 px-6 py-2.5 rounded-lg font-medium transition-all ${
             activeTab === 'trading'
-              ? 'bg-white dark:bg-dark-500 text-primary-600 dark:text-primary-400 shadow-sm'
+              ? 'bg-white dark:bg-dark-500 text-royal-600 dark:text-royal-400 shadow-sm'
               : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
           }`}
         >
@@ -295,11 +295,11 @@ export default function Earn() {
         <WatchAds />
       ) : (
         /* Trading Interface */
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-in fade-in duration-500">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 animate-in fade-in duration-500">
           {/* Main Chart Area (2/3 width on large screens) */}
           <div className="lg:col-span-2 space-y-6">
             {/* Trading Pair Selector and Controls */}
-            <div className="bg-white dark:bg-dark-600 p-4 rounded-lg shadow-sm border border-gray-100 dark:border-dark-500">
+            <div className="widget-surface p-4 border-pin">
               <div className="flex flex-wrap justify-between items-center gap-4">
                 {/* Trading Pair Selector */}
                 <div className="relative" ref={pairDropdownRef}>
@@ -314,7 +314,7 @@ export default function Earn() {
                   </button>
                   
                   {pairDropdownOpen && (
-                    <div className="absolute z-10 mt-1 w-64 bg-white dark:bg-dark-700 rounded-lg shadow-lg border border-gray-200 dark:border-dark-500 max-h-60 overflow-y-auto">
+                    <div className="absolute z-50 mt-1 w-64 bg-white dark:bg-dark-700 rounded-lg shadow-lg border border-gray-200 dark:border-dark-500 max-h-60 overflow-y-auto">
                       {pairs.map((pair) => (
                         <button
                           key={pair.id}
@@ -323,7 +323,7 @@ export default function Earn() {
                         >
                           <span>{pair.display_name}</span>
                           {pair.id === selectedPair?.id && (
-                            <span className="text-primary-600 dark:text-primary-400">✓</span>
+                            <span className="text-royal-600 dark:text-royal-400">✓</span>
                           )}
                         </button>
                       ))}
@@ -342,7 +342,7 @@ export default function Earn() {
                   </button>
                   
                   {timeframeDropdownOpen && (
-                    <div className="absolute z-10 mt-1 w-32 bg-white dark:bg-dark-700 rounded-lg shadow-lg border border-gray-200 dark:border-dark-500 text-gray-900 dark:text-light">
+                    <div className="absolute z-50 mt-1 w-32 bg-white dark:bg-dark-700 rounded-lg shadow-lg border border-gray-200 dark:border-dark-500 text-gray-900 dark:text-light">
                       {['1m', '5m', '15m', '1h', '4h', '1d'].map((tf) => (
                         <button
                           key={tf}
@@ -351,7 +351,7 @@ export default function Earn() {
                         >
                           <span>{tf}</span>
                           {tf === timeframe && (
-                            <span className="text-primary-600 dark:text-primary-400">✓</span>
+                            <span className="text-royal-600 dark:text-royal-400">✓</span>
                           )}
                         </button>
                       ))}
@@ -360,31 +360,31 @@ export default function Earn() {
                 </div>
                 
                 {/* Market Stats */}
-                <div className="flex flex-wrap items-center gap-4">
+                <div className="flex flex-wrap items-center gap-2 sm:gap-4">
                   <div className="flex items-center space-x-1">
-                    <span className="text-sm text-gray-500 dark:text-gray-400">24h High:</span>
-                    <span className="text-sm font-semibold text-gray-900 dark:text-light">
+                    <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">24h High:</span>
+                    <span className="text-xs sm:text-sm font-semibold text-gray-900 dark:text-light">
                       ${marketStats.high24h.toFixed(2)}
                     </span>
                   </div>
-                  
+
                   <div className="flex items-center space-x-1">
-                    <span className="text-sm text-gray-500 dark:text-gray-400">24h Low:</span>
-                    <span className="text-sm font-semibold text-gray-900 dark:text-light">
+                    <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">24h Low:</span>
+                    <span className="text-xs sm:text-sm font-semibold text-gray-900 dark:text-light">
                       ${marketStats.low24h.toFixed(2)}
                     </span>
                   </div>
-                  
+
                   <div className="flex items-center space-x-1">
-                    <span className="text-sm text-gray-500 dark:text-gray-400">24h Vol:</span>
-                    <span className="text-sm font-semibold text-gray-900 dark:text-light">
+                    <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">24h Vol:</span>
+                    <span className="text-xs sm:text-sm font-semibold text-gray-900 dark:text-light">
                       ${Math.round(marketStats.volume24h).toLocaleString()}
                     </span>
                   </div>
-                  
+
                   <div className="flex items-center space-x-1">
-                    <span className="text-sm text-gray-500 dark:text-gray-400">24h Change:</span>
-                    <div className={`flex items-center text-sm font-semibold ${marketStats.change24h >= 0 ? 'text-accent-600 dark:text-accent-400' : 'text-secondary-600 dark:text-secondary-400'}`}>
+                    <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">24h Change:</span>
+                    <div className={`flex items-center text-xs sm:text-sm font-semibold ${marketStats.change24h >= 0 ? 'text-accent-600 dark:text-accent-400' : 'text-secondary-600 dark:text-secondary-400'}`}>
                       {marketStats.change24h >= 0 ? <ArrowUp size={14} className="mr-0.5" /> : <ArrowDown size={14} className="mr-0.5" />}
                       {marketStats.change24h.toFixed(2)}%
                     </div>
@@ -394,10 +394,10 @@ export default function Earn() {
             </div>
             
             {/* Chart */}
-            <div className="bg-white dark:bg-dark-600 rounded-lg shadow-sm border border-gray-100 dark:border-dark-500 overflow-hidden">
+            <div className="widget-surface rounded-lg border-pin overflow-hidden">
               {loading ? (
                 <div className="h-[400px] flex items-center justify-center">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 dark:border-primary-400"></div>
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-royal-600 dark:border-royal-400"></div>
                 </div>
               ) : selectedPair ? (
                 <ErrorBoundary
@@ -428,43 +428,43 @@ export default function Earn() {
             </div>
             
             {/* Recent Trades */}
-            <div className="bg-white dark:bg-dark-600 p-4 rounded-lg shadow-sm border border-gray-100 dark:border-dark-500">
-              <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-light">Your Recent Trades</h2>
-              
+            <div className="widget-surface p-4 border-pin">
+              <h2 className="text-base sm:text-lg font-semibold mb-4 text-gray-900 dark:text-light">Your Recent Trades</h2>
+
               {trades.length > 0 ? (
                 <div className="overflow-x-auto">
                   <table className="min-w-full divide-y divide-gray-200 dark:divide-dark-500">
                     <thead>
                       <tr>
-                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Pair</th>
-                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Type</th>
-                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Price</th>
-                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Amount</th>
-                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Total</th>
-                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Date</th>
+                        <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Pair</th>
+                        <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Type</th>
+                        <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Price</th>
+                        <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Amount</th>
+                        <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Total</th>
+                        <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Date</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200 dark:divide-dark-500">
                       {trades.map((trade) => (
                         <tr key={trade.id} className="text-gray-900 dark:text-light">
-                          <td className="px-4 py-2 whitespace-nowrap">
+                          <td className="px-3 py-2 whitespace-nowrap">
                             {trade.pair?.display_name || `${trade.pair_id}`}
                           </td>
-                          <td className="px-4 py-2 whitespace-nowrap">
+                          <td className="px-3 py-2 whitespace-nowrap">
                             <span className={`px-2 py-1 rounded-full text-xs font-medium ${trade.type === 'buy' ? 'bg-accent-100 dark:bg-accent-900/30 text-accent-700 dark:text-accent-400' : 'bg-secondary-100 dark:bg-secondary-900/30 text-secondary-700 dark:text-secondary-400'}`}>
                               {trade.type.toUpperCase()}
                             </span>
                           </td>
-                          <td className="px-4 py-2 whitespace-nowrap">
+                          <td className="px-3 py-2 whitespace-nowrap">
                             ${trade.price.toFixed(2)}
                           </td>
-                          <td className="px-4 py-2 whitespace-nowrap">
+                          <td className="px-3 py-2 whitespace-nowrap">
                             {trade.amount}
                           </td>
-                          <td className="px-4 py-2 whitespace-nowrap">
+                          <td className="px-3 py-2 whitespace-nowrap">
                             ${trade.total.toFixed(2)}
                           </td>
-                          <td className="px-4 py-2 whitespace-nowrap text-gray-500 dark:text-gray-400 text-sm">
+                          <td className="px-3 py-2 whitespace-nowrap text-gray-500 dark:text-gray-400 text-sm">
                             {new Date(trade.created_at).toLocaleString()}
                           </td>
                         </tr>
@@ -481,15 +481,15 @@ export default function Earn() {
           </div>
           
           {/* Order Form and Wallet (1/3 width on large screens) */}
-          <div className="space-y-6">
+          <div className="space-y-4">
             {/* Order Form */}
-            <div className="bg-white dark:bg-dark-600 p-4 rounded-lg shadow-sm border border-gray-100 dark:border-dark-500">
-              <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-light">Place Order</h2>
-              
+            <div className="widget-surface p-4 border-pin">
+              <h2 className="text-base sm:text-lg font-semibold mb-4 text-gray-900 dark:text-light">Place Order</h2>
+
               {selectedPair ? (
-                <TradingOrderForm 
-                  currentPrice={getCurrentPrice()} 
-                  pair={selectedPair} 
+                <TradingOrderForm
+                  currentPrice={getCurrentPrice()}
+                  pair={selectedPair}
                   wallets={wallets}
                   onOrderSubmit={handleOrderSubmit}
                 />
@@ -499,10 +499,10 @@ export default function Earn() {
                 </div>
               )}
             </div>
-            
+
             {/* Wallet Balances */}
-            <div className="bg-white dark:bg-dark-600 p-4 rounded-lg shadow-sm border border-gray-100 dark:border-dark-500">
-              <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-light">Your Wallet</h2>
+            <div className="widget-surface p-4 border-pin">
+              <h2 className="text-base sm:text-lg font-semibold mb-4 text-gray-900 dark:text-light">Your Wallet</h2>
               
               {wallets.length > 0 ? (
                 <div className="space-y-3">

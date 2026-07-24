@@ -1,11 +1,17 @@
 // Dashboard component
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { DollarSign, Users, Clock, Trophy } from 'lucide-react';
+import { useGSAP } from '@gsap/react';
+import gsap from 'gsap';
 import { fetchUserStats, UserStats } from '../lib/userDataService';
+
+gsap.registerPlugin(useGSAP);
 
 export default function Dashboard() {
   const [stats, setStats] = useState<UserStats>({} as UserStats);
   const [loading, setLoading] = useState(true);
+
+  const cardsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     loadData();
@@ -23,110 +29,136 @@ export default function Dashboard() {
     }
   };
 
+  // Stagger entrance for stat cards
+  useGSAP(() => {
+    if (!cardsRef.current) return;
+    const mm = gsap.matchMedia();
+    mm.add('(prefers-reduced-motion: reduce)', () => { return; });
+    mm.add('(max-width: 639px)', () => {
+      gsap.fromTo(
+        cardsRef.current!.querySelectorAll('.stat-card'),
+        { opacity: 0 },
+        { opacity: 1, duration: 0.35, stagger: 0.08, ease: 'power2.out' }
+      );
+      return () => mm.revert();
+    });
+    mm.add('(min-width: 640px)', () => {
+      gsap.fromTo(
+        cardsRef.current!.querySelectorAll('.stat-card'),
+        { y: 24, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.5, stagger: 0.09, ease: 'power2.out' }
+      );
+      return () => mm.revert();
+    });
+    return () => mm.revert();
+  }, { scope: cardsRef });
+
   if (loading) {
-    return <div className="p-6 text-gray-600 dark:text-light">Loading dashboard data...</div>;
+    return (
+      <div className="min-h-64 flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-royal-600/30 border-t-royal-600 rounded-full animate-spin" />
+      </div>
+    );
   }
 
+  const statCards = [
+    {
+      icon: DollarSign,
+      label: 'Available Balance',
+      value: `$${stats.balance?.toFixed(2) || '0.00'}`,
+      iconBg: 'rgba(230,0,35,0.08)',
+      iconColor: 'text-royal-600 dark:text-royal-400',
+    },
+    {
+      icon: Trophy,
+      label: 'Total Earned',
+      value: `$${stats.totalEarned?.toFixed(2) || '0.00'}`,
+      iconBg: 'rgba(230,0,35,0.08)',
+      iconColor: 'text-royal-600 dark:text-royal-400',
+    },
+    {
+      icon: Clock,
+      label: 'Tasks Completed',
+      value: String(stats.tasksCompleted ?? 0),
+      iconBg: 'rgba(230,0,35,0.08)',
+      iconColor: 'text-royal-600 dark:text-royal-400',
+    },
+    {
+      icon: Users,
+      label: 'Active Referrals',
+      value: String(stats.activeReferrals ?? 0),
+      iconBg: 'rgba(230,0,35,0.08)',
+      iconColor: 'text-royal-600 dark:text-royal-400',
+    },
+  ];
+
   return (
-    <div className="space-y-6">
-      <h1 className="text-3xl font-bold text-gray-900 dark:text-light">Welcome to AdVista Rewards</h1>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {/* Available Balance */}
-        <div className="bg-white dark:bg-dark-600 p-6 rounded-lg shadow-sm border border-gray-100 dark:border-dark-500 text-gray-900 dark:text-light">
-          <div className="flex items-center space-x-3">
-            <div className="bg-primary-50 dark:bg-dark-400 p-3 rounded-full">
-              <DollarSign className="w-6 h-6 text-primary-600 dark:text-primary-400" />
+    <div className="space-y-5">
+      {/* Welcome */}
+      <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
+        Welcome back
+      </h2>
+
+      {/* Stats grid */}
+      <div ref={cardsRef} className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        {statCards.map((card, i) => (
+          <div
+            key={i}
+            className="stat-card widget-surface p-4 sm:p-5"
+          >
+            <div className="flex items-center gap-2.5 sm:gap-3 mb-2 sm:mb-3">
+              <div
+                className="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center shrink-0"
+                style={{ background: card.iconBg }}
+              >
+                <card.icon
+                  size={15}
+                  strokeWidth={2.2}
+                  className={card.iconColor}
+                />
+              </div>
+              <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 font-medium leading-tight">
+                {card.label}
+              </p>
             </div>
-            <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Available Balance</p>
-              <div className="text-3xl font-bold">${stats.balance?.toFixed(2) || '0.00'}</div>
-            </div>
-          </div>
-        </div>
-        
-        {/* Total Earned */}
-        <div className="bg-white dark:bg-dark-600 p-6 rounded-lg shadow-sm border border-gray-100 dark:border-dark-500 text-gray-900 dark:text-light">
-          <div className="flex items-center space-x-3">
-            <div className="bg-primary-50 dark:bg-dark-400 p-3 rounded-full">
-              <Trophy className="w-6 h-6 text-primary-600 dark:text-primary-400" />
-            </div>
-            <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Total Earned</p>
-              <div className="text-3xl font-bold">${stats.totalEarned?.toFixed(2) || '0.00'}</div>
-            </div>
-          </div>
-        </div>
-        
-        {/* Tasks Completed */}
-        <div className="bg-white dark:bg-dark-600 p-6 rounded-lg shadow-sm border border-gray-100 dark:border-dark-500 text-gray-900 dark:text-light">
-          <div className="flex items-center space-x-3">
-            <div className="bg-primary-50 dark:bg-dark-400 p-3 rounded-full">
-              <Clock className="w-6 h-6 text-primary-600 dark:text-primary-400" />
-            </div>
-            <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Tasks Completed</p>
-              <div className="text-3xl font-bold">{stats.tasksCompleted || 0}</div>
+            <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white truncate">
+              {card.value}
             </div>
           </div>
-        </div>
-        
-        {/* Referrals */}
-        <div className="bg-white dark:bg-dark-600 p-6 rounded-lg shadow-sm border border-gray-100 dark:border-dark-500 text-gray-900 dark:text-light">
-          <div className="flex items-center space-x-3">
-            <div className="bg-primary-50 dark:bg-dark-400 p-3 rounded-full">
-              <Users className="w-6 h-6 text-primary-600 dark:text-primary-400" />
-            </div>
-            <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Active Referrals</p>
-              <div className="text-3xl font-bold">{stats.activeReferrals || 0}</div>
-            </div>
-          </div>
-        </div>
+        ))}
       </div>
 
-      <div className="bg-white dark:bg-dark-600 p-6 rounded-lg shadow-sm border border-gray-100 dark:border-dark-500 text-gray-900 dark:text-light">
-        <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-light">Quick Start Guide</h2>
-        <div className="space-y-4">
-          <div className="flex items-start space-x-3">
-            <div className="bg-primary-50 dark:bg-dark-400 p-2 rounded-full h-8 w-8 flex items-center justify-center">
-              <span className="font-semibold text-primary-600 dark:text-primary-400">1</span>
+      {/* Quick Start Guide */}
+      <div className="widget-surface p-4 sm:p-6">
+        <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-4">
+          Quick Start Guide
+        </h3>
+        <div className="space-y-3 sm:space-y-4">
+          {[
+            { step: '1', title: 'Watch Ads', desc: 'Complete 1-minute ad watching tasks to earn real USD.' },
+            { step: '2', title: 'Track Progress', desc: 'Monitor your earnings and completed tasks in real-time.' },
+            { step: '3', title: 'Withdraw Earnings', desc: 'Cash out your earnings once you reach the minimum threshold.' },
+            { step: '4', title: 'Refer Friends', desc: 'Share your referral code and earn bonus rewards.' },
+          ].map((item) => (
+            <div key={item.step} className="flex items-start gap-3">
+              <div
+                className="w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center shrink-0 mt-0.5"
+                style={{ background: 'rgba(230,0,35,0.1)' }}
+              >
+                <span className="text-xs sm:text-sm font-bold text-royal-600 dark:text-royal-400">
+                  {item.step}
+                </span>
+              </div>
+              <div>
+                <h4 className="font-medium text-sm sm:text-base text-gray-900 dark:text-white">
+                  {item.title}
+                </h4>
+                <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+                  {item.desc}
+                </p>
+              </div>
             </div>
-            <div>
-              <h3 className="font-medium text-gray-900 dark:text-light">Watch Ads</h3>
-              <p className="text-gray-500 dark:text-gray-400">Complete 1-minute ad watching tasks to earn real USD.</p>
-            </div>
-          </div>
-          
-          <div className="flex items-start space-x-3">
-            <div className="bg-primary-50 dark:bg-dark-400 p-2 rounded-full h-8 w-8 flex items-center justify-center">
-              <span className="font-semibold text-primary-600 dark:text-primary-400">2</span>
-            </div>
-            <div>
-              <h3 className="font-medium text-gray-900 dark:text-light">Track Progress</h3>
-              <p className="text-gray-500 dark:text-gray-400">Monitor your earnings and completed tasks in real-time.</p>
-            </div>
-          </div>
-          
-          <div className="flex items-start space-x-3">
-            <div className="bg-primary-50 dark:bg-dark-400 p-2 rounded-full h-8 w-8 flex items-center justify-center">
-              <span className="font-semibold text-primary-600 dark:text-primary-400">3</span>
-            </div>
-            <div>
-              <h3 className="font-medium text-gray-900 dark:text-light">Withdraw Earnings</h3>
-              <p className="text-gray-500 dark:text-gray-400">Cash out your earnings once you reach the minimum threshold.</p>
-            </div>
-          </div>
-          
-          <div className="flex items-start space-x-3">
-            <div className="bg-primary-50 dark:bg-dark-400 p-2 rounded-full h-8 w-8 flex items-center justify-center">
-              <span className="font-semibold text-primary-600 dark:text-primary-400">4</span>
-            </div>
-            <div>
-              <h3 className="font-medium text-gray-900 dark:text-light">Refer Friends</h3>
-              <p className="text-gray-500 dark:text-gray-400">Share your referral code and earn bonus rewards.</p>
-            </div>
-          </div>
+          ))}
         </div>
       </div>
     </div>

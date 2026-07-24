@@ -1,21 +1,26 @@
 import { useEffect, useState } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { DollarSign, Users, Wallet, User, LayoutDashboard, LogOut, Menu, X, ShieldCheck } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { supabase } from '../lib/supabase';
 import ThemeToggle from './ThemeToggle';
 import NotificationBell from './NotificationBell';
+import { signOut as signOutUser } from '../lib/auth';
 
 const Navigation = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [userProfile, setUserProfile] = useState<{ name?: string; avatar_url?: string; is_admin?: boolean } | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isSigningOut, setIsSigningOut] = useState(false);
 
   useEffect(() => {
+    let isActive = true;
     const fetchUserProfile = async () => {
       const {
         data: { user },
       } = await supabase.auth.getUser();
+      if (!isActive) return;
       if (user) {
         const { data } = await supabase
           .from('users')
@@ -23,13 +28,15 @@ const Navigation = () => {
           .eq('id', user.id)
           .single();
 
-        if (data) {
+        if (isActive && data) {
           setUserProfile(data);
         }
       }
     };
-
     fetchUserProfile();
+    return () => {
+      isActive = false;
+    };
   }, []);
 
   useEffect(() => {
@@ -37,16 +44,25 @@ const Navigation = () => {
   }, [location.pathname]);
 
   const handleSignOut = async () => {
-    try {
-      await Promise.race([
-        supabase.auth.signOut(),
-        new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 5000)),
-      ]);
-    } catch (e) {
-      console.error('Sign out error:', e);
-    }
+    if (isSigningOut) return;
+
+    setIsSigningOut(true);
     setIsMobileMenuOpen(false);
-    navigate('/login');
+
+    try {
+      const { error } = await signOutUser();
+
+      if (error) {
+        throw new Error(typeof error === 'string' ? error : 'Failed to sign out');
+      }
+
+      navigate('/login', { replace: true });
+    } catch (e: any) {
+      console.error('Sign out error:', e);
+      toast.error(e.message || 'Failed to sign out');
+    } finally {
+      setIsSigningOut(false);
+    }
   };
 
   const isActive = (path: string) => {
@@ -165,10 +181,11 @@ const Navigation = () => {
           <button
             type="button"
             onClick={handleSignOut}
-            className="flex items-center space-x-3 p-3 w-full rounded-2xl text-gray-700 dark:text-dark-200 hover:bg-royal-50 dark:hover:bg-dark-500 hover:text-royal-700 dark:hover:text-royal-400 transition text-left"
+            disabled={isSigningOut}
+            className="flex items-center space-x-3 p-3 w-full rounded-2xl text-gray-700 dark:text-dark-200 hover:bg-royal-50 dark:hover:bg-dark-500 hover:text-royal-700 dark:hover:text-royal-400 transition text-left disabled:cursor-not-allowed disabled:opacity-60"
           >
             <LogOut size={20} />
-            <span>Sign Out</span>
+            <span>{isSigningOut ? 'Signing Out...' : 'Sign Out'}</span>
           </button>
         </div>
       </nav>
@@ -222,10 +239,11 @@ const Navigation = () => {
             <button
               type="button"
               onClick={handleSignOut}
-              className="flex items-center space-x-3 p-3.5 w-full rounded-2xl bg-royal-50 dark:bg-dark-500 text-royal-700 dark:text-royal-400 hover:bg-royal-100 dark:hover:bg-dark-400 transition text-left font-semibold"
+              disabled={isSigningOut}
+              className="flex items-center space-x-3 p-3.5 w-full rounded-2xl bg-royal-50 dark:bg-dark-500 text-royal-700 dark:text-royal-400 hover:bg-royal-100 dark:hover:bg-dark-400 transition text-left font-semibold disabled:cursor-not-allowed disabled:opacity-60"
             >
               <LogOut size={20} />
-              <span>Sign Out</span>
+              <span>{isSigningOut ? 'Signing Out...' : 'Sign Out'}</span>
             </button>
           </div>
         </div>

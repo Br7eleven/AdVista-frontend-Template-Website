@@ -102,16 +102,8 @@ export const signUpWithEmail = async (email: string, password: string, userData:
           ], { onConflict: 'id' });
 
         if (profileError) {
-          console.error('Error creating user profile:', profileError);
-          
-          // If it's an RLS policy error, we'll just log it and continue
-          // The user can update their profile later when logged in
-          if (profileError.code === '42501') {
-            console.log('RLS policy error - user will need to update profile after login');
-            // We don't throw the error here, allowing registration to complete
-          } else {
+            console.error('Error creating user profile:', profileError);
             throw profileError;
-          }
         } else {
           console.log('User profile created successfully');
         }
@@ -153,10 +145,16 @@ export const signInWithGoogle = async () => {
  */
 export const signOut = async () => {
   try {
+    console.info('Signing out current Supabase session');
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
+
+    const { data } = await supabase.auth.getSession();
+    console.info('Supabase session after sign out:', !!data.session);
+
     return { error: null };
   } catch (error: any) {
+    console.error('Supabase sign out failed:', error);
     return { error: error.message || 'Failed to sign out' };
   }
 };
@@ -240,8 +238,14 @@ export const getUserProfile = async () => {
       .eq('id', user.id)
       .single();
 
-    if (error) throw error;
-    return { profile: data, error: null };
+    if (error) {
+      // Distinguish "no rows" from actual errors
+      if (error.code === 'PGRST116') {
+        return { profile: null, error: 'Profile not found', notFound: true };
+      }
+      throw error;
+    }
+    return { profile: data, error: null, notFound: false };
   } catch (error: any) {
     return { profile: null, error: error.message || 'Failed to get user profile' };
   }

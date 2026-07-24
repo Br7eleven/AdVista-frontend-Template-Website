@@ -1,157 +1,151 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { ArrowLeft } from 'lucide-react';
+import { Mail } from 'lucide-react';
 import ThemeToggle from '../components/ThemeToggle';
+import AuthBackground from '../components/AuthBackground';
+import GlassCard from '../components/GlassCard';
+import { useGSAP } from '@gsap/react';
+import gsap from 'gsap';
 import { resetPassword } from '../lib/auth';
 
-const inputClass =
-  'w-full px-4 py-2.5 rounded-lg border bg-white dark:bg-dark-700 text-gray-900 dark:text-light placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 transition border-gray-200 dark:border-dark-500 focus:ring-primary-500/40 focus:border-primary-500';
-
-const labelClass = 'block text-sm font-medium text-gray-800 dark:text-gray-200 mb-1.5';
+gsap.registerPlugin(useGSAP);
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const formRef = useRef<HTMLDivElement>(null);
 
-  const handleResetPassword = async (e: React.FormEvent) => {
+  useGSAP(
+    () => {
+      if (!formRef.current) return;
+      gsap.fromTo(
+        formRef.current.querySelectorAll('.auth-field'),
+        { y: 20, opacity: 0 },
+        { y: 0, opacity: 1, stagger: 0.07, duration: 0.5, ease: 'power2.out' }
+      );
+    },
+    { scope: formRef }
+  );
+
+  const handleReset = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    const loadingToast = toast.loading('Sending reset link...');
-
+    if (!email.trim()) { toast.error('Enter your email address'); return; }
+    setLoading(true);
+    const t = toast.loading('Sending reset link…');
     try {
       const { error } = await resetPassword(email);
-
       if (error) throw new Error(error);
-
-      toast.dismiss(loadingToast);
+      toast.dismiss(t);
       setIsSubmitted(true);
-      toast.success('Password reset link sent to your email');
-    } catch (error: any) {
-      toast.dismiss(loadingToast);
-      toast.error(error.message || 'Failed to send reset password link');
+      toast.success('Reset link sent — check your inbox');
+    } catch (err: any) {
+      toast.dismiss(t);
+      toast.error(err.message || 'Failed to send reset link');
+    } finally {
+      setLoading(false);
     }
   };
 
   if (isSubmitted) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-dark-800 flex flex-col transition-colors duration-200">
-        {/* Header bar with theme toggle */}
-        <div className="w-full flex justify-end p-3">
+      <div className="auth-layout">
+        <AuthBackground />
+        <div className="flex justify-end px-4 pt-4" style={{ position: 'relative', zIndex: 10 }}>
           <ThemeToggle compact />
         </div>
-
-        {/* Form area */}
-        <div className="flex-1 flex items-center justify-center px-4 pb-6">
-        <div className="w-full max-w-md bg-white dark:bg-dark-600 rounded-lg shadow-sm border border-gray-200 dark:border-dark-500 overflow-hidden text-gray-900 dark:text-light">
-          <div className="p-6 text-center">
-            <div className="flex justify-center mb-6">
-              <div className="bg-blue-100 dark:bg-blue-900/40 p-3 rounded-full">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-blue-500 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
+        <div style={{ position: 'relative', zIndex: 10 }} className="auth-scroll flex items-start justify-center px-4 pt-6 pb-4">
+          <GlassCard className="w-full max-w-[420px] mx-auto mt-2 text-center" style={{ padding: '2rem' }}>
+            <div className="flex justify-center mb-5">
+              <div className="w-16 h-16 rounded-full flex items-center justify-center" style={{ background: 'rgba(230,0,35,0.12)' }}>
+                <Mail size={30} className="text-rose-600 dark:text-rose-400" strokeWidth={1.75} />
               </div>
             </div>
-
-            <h2 className="text-2xl font-bold text-gray-800 dark:text-light mb-2">Check your email</h2>
-            <p className="text-gray-600 dark:text-gray-300 mb-6">
-              We've sent a password reset link to <strong>{email}</strong>. Please check your inbox and follow the instructions.
+            <h2 className="font-display font-bold text-2xl text-stone-900 dark:text-stone-100 mb-3 text-center">
+              Check your email
+            </h2>
+            <p className="text-sm text-stone-500 dark:text-stone-400 mb-2 leading-relaxed">
+              We sent a reset link to<br />
+              <strong className="text-stone-700 dark:text-stone-200">{email}</strong>
             </p>
-
-            <Link
-              to="/login"
-              className="block w-full py-2.5 bg-primary-600 hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-400 text-white font-medium rounded-lg transition text-center"
-            >
-              Back to Login
+            <p className="text-sm text-stone-400 dark:text-stone-500 mb-7 leading-relaxed">
+              Follow the instructions in the email to set a new password.
+            </p>
+            <Link to="/login" className="auth-btn-primary mb-3 w-full text-center block">
+              Back to Sign in
             </Link>
-
             <button
               onClick={() => setIsSubmitted(false)}
-              className="w-full mt-3 py-2 text-primary-600 dark:text-primary-300 hover:text-primary-700 dark:hover:text-primary-200 font-medium transition"
+              className="auth-btn-secondary w-full"
             >
-              Try another email
+              Use a different email
             </button>
-          </div>
-        </div>
+          </GlassCard>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-dark-800 flex flex-col transition-colors duration-200">
-      {/* Header bar with theme toggle */}
-      <div className="w-full flex justify-end p-3">
+    <div className="auth-layout">
+      <AuthBackground />
+
+      <div className="flex justify-end px-4 pt-4" style={{ position: 'relative', zIndex: 10 }}>
         <ThemeToggle compact />
       </div>
 
-      {/* Form area */}
-      <div className="flex-1 flex items-center justify-center px-4 pb-6">
-      <div className="w-full max-w-md bg-white dark:bg-dark-600 rounded-lg shadow-sm border border-gray-200 dark:border-dark-500 overflow-hidden text-gray-900 dark:text-light">
-        <div className="p-6">
-          <div className="flex items-center mb-6">
-            <Link
-              to="/login"
-              className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-light transition"
-            >
-              <ArrowLeft size={20} />
-            </Link>
-            <h1 className="text-2xl font-bold text-center flex-1 pr-5 text-gray-900 dark:text-light">
-              Forgot Password
+      <div style={{ position: 'relative', zIndex: 10 }} className="auth-scroll flex items-start justify-center px-4 pt-2 pb-4">
+        <GlassCard className="w-full max-w-[420px] mx-auto mt-2" style={{ padding: '1.75rem' }}>
+          <div ref={formRef}>
+            <h1 className="font-display font-bold text-2xl text-stone-900 dark:text-stone-100 mb-1 auth-field text-center">
+              Forgot password?
             </h1>
-          </div>
+            <p className="text-sm text-stone-500 dark:text-stone-400 mb-5 auth-field text-center leading-relaxed">
+              Enter your email and we'll send you a link to reset your password.
+            </p>
 
-          <div className="flex justify-center mb-6">
-            <img
-              src="/images/forgot-password-illustration.svg"
-              alt="Forgot Password"
-              className="h-40 w-auto"
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.onerror = null;
-                target.src = 'https://via.placeholder.com/150?text=Forgot+Password';
-              }}
-            />
-          </div>
+            <form onSubmit={handleReset} className="auth-form-stack">
+              <div className="auth-field">
+                <div className="auth-input-group">
+                  <label className="auth-label" htmlFor="fp-email">Email address</label>
+                  <input
+                    id="fp-email"
+                    type="email"
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
+                    className="auth-input"
+                    placeholder="you@example.com"
+                    required
+                    autoFocus
+                  />
+                </div>
+              </div>
 
-          <p className="text-gray-600 dark:text-gray-300 mb-6 text-center">
-            Enter your email address and we'll send you a link to reset your password.
-          </p>
+              <button type="submit" className="auth-btn-primary auth-field" disabled={loading}>
+                {loading ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                    </svg>
+                    Sending…
+                  </span>
+                ) : 'Send reset link'}
+              </button>
+            </form>
 
-          <form onSubmit={handleResetPassword} className="space-y-4">
-            <div>
-              <label className={labelClass}>Email</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className={inputClass}
-                placeholder="your@email.com"
-                required
-              />
-            </div>
-
-            <button
-              type="submit"
-              className="w-full py-2.5 bg-primary-600 hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-400 text-white font-medium rounded-lg transition"
-            >
-              Send Reset Link
-            </button>
-          </form>
-
-          <div className="mt-6 text-center">
-            <p className="text-sm text-gray-700 dark:text-gray-300">
+            <p className="auth-footer auth-field">
               Remember your password?{' '}
               <Link
                 to="/login"
-                className="text-primary-600 dark:text-primary-300 hover:text-primary-700 dark:hover:text-primary-200 font-semibold"
+                className="text-rose-600 dark:text-rose-400 font-semibold hover:text-rose-700 dark:hover:text-rose-300"
               >
-                Back to Login
+                Back to Sign in
               </Link>
             </p>
           </div>
-        </div>
-      </div>
+        </GlassCard>
       </div>
     </div>
   );

@@ -44,9 +44,14 @@ const TradingOrderForm = ({ pair, currentPrice, onOrderSubmit, wallets = [] }: T
   };
 
   const handlePercentageClick = (percentage: number) => {
+    const priceValue = parseFloat(price);
+    if (!priceValue || priceValue <= 0) {
+      toast.error('Enter a valid price first');
+      return;
+    }
     if (orderType === 'buy') {
       // Calculate max amount based on quote balance (e.g., USDT)
-      const maxAmount = quoteBalance / parseFloat(price);
+      const maxAmount = quoteBalance / priceValue;
       setAmount((maxAmount * percentage / 100).toFixed(8));
     } else {
       // For sell, use base balance (e.g., BTC)
@@ -56,36 +61,42 @@ const TradingOrderForm = ({ pair, currentPrice, onOrderSubmit, wallets = [] }: T
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
+    const amountValue = parseFloat(amount);
+    const priceValue = parseFloat(price);
+    const totalValue = amountValue * priceValue;
+
     if (!amount || !price) {
       toast.error('Please enter amount and price');
       return;
     }
-    
-    const amountValue = parseFloat(amount);
-    const priceValue = parseFloat(price);
-    
+
     if (isNaN(amountValue) || isNaN(priceValue)) {
       toast.error('Invalid amount or price');
       return;
     }
-    
+
     if (amountValue <= 0 || priceValue <= 0) {
       toast.error('Amount and price must be greater than 0');
       return;
     }
-    
+
+    if (isNaN(totalValue) || !isFinite(totalValue)) {
+      toast.error('Invalid total calculation');
+      return;
+    }
+
     if (amountValue < pair.min_trade_amount) {
       toast.error(`Minimum trade amount is ${pair.min_trade_amount} ${pair.base_currency}`);
       return;
     }
-    
+
     // Check if user has enough balance
-    if (orderType === 'buy' && total > quoteBalance) {
+    if (orderType === 'buy' && totalValue > quoteBalance) {
       toast.error(`Insufficient ${pair.quote_currency} balance`);
       return;
     }
-    
+
     if (orderType === 'sell' && amountValue > baseBalance) {
       toast.error(`Insufficient ${pair.base_currency} balance`);
       return;

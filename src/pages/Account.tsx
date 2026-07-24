@@ -10,44 +10,44 @@ export default function Account() {
     email: '',
     avatar_url: '',
   });
-  
+
   // Store phone separately to avoid schema cache issues
   const [userPhone, setUserPhone] = useState('');
   const [countryCode, setCountryCode] = useState('+1');
   const [phoneWithoutCode, setPhoneWithoutCode] = useState('');
   const [loading, setLoading] = useState(false);
-  
+
   // Handle profile picture upload
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
-    
+
     const file = e.target.files[0];
-    
+
     try {
       setLoading(true);
       const { data: { user: authUser } } = await supabase.auth.getUser();
       if (!authUser) throw new Error('Not authenticated');
-      
+
       // Check if the bucket exists
       const { data: buckets, error: bucketsError } = await supabase.storage.listBuckets();
-      
+
       if (bucketsError) {
         console.error('Error checking buckets:', bucketsError);
         throw new Error('Could not access storage');
       }
-      
+
       // Find or create a bucket
       const bucketName = 'avatars';
       const bucketExists = buckets.some(bucket => bucket.name === bucketName);
-      
+
       if (!bucketExists) {
         console.log('Bucket does not exist, trying to create it...');
         // Note: Creating buckets requires admin privileges
         // We'll use a data URL approach instead for this demo
-        
+
         // Convert file to data URL
         const reader = new FileReader();
-        
+
         // Create a promise to handle the FileReader
         const dataUrlPromise = new Promise<string>((resolve, reject) => {
           reader.onload = () => {
@@ -59,55 +59,55 @@ export default function Account() {
           };
           reader.onerror = () => reject(reader.error);
         });
-        
+
         reader.readAsDataURL(file);
         const dataUrl = await dataUrlPromise;
-        
+
         // Store the data URL in auth metadata
         await supabase.auth.updateUser({
-          data: { 
-            avatar_url: dataUrl 
+          data: {
+            avatar_url: dataUrl
           }
         });
-        
+
         // Update local state
         setUser({ ...user, avatar_url: dataUrl });
         toast.success('Profile picture updated (stored in user metadata)');
         return;
       }
-      
+
       // If we get here, the bucket exists, so proceed with normal upload
       const fileExt = file.name.split('.').pop();
       const fileName = `${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
       const filePath = `${bucketName}/${fileName}`;
-      
+
       // Upload the file to storage
       const { error: uploadError } = await supabase.storage
         .from(bucketName)
         .upload(filePath, file);
-        
+
       if (uploadError) throw uploadError;
-      
+
       // Get the public URL
       const { data: { publicUrl } } = supabase.storage
         .from(bucketName)
         .getPublicUrl(filePath);
-        
+
       // Update the user profile with the avatar URL
       const { error: updateError } = await supabase
         .from('users')
         .update({ avatar_url: publicUrl })
         .eq('id', authUser.id);
-        
+
       if (updateError) {
         console.error('Error updating profile with avatar URL:', updateError);
       }
-      
+
       // Update auth metadata (this is more reliable)
       await supabase.auth.updateUser({
         data: { avatar_url: publicUrl }
       });
-      
+
       // Update local state
       setUser({ ...user, avatar_url: publicUrl });
       toast.success('Profile picture updated');
@@ -127,26 +127,26 @@ export default function Account() {
         // Get the authenticated user
         const { data: { user: authUser } } = await supabase.auth.getUser();
         console.log('Auth user:', authUser);
-        
+
         if (!authUser) {
           console.log('No authenticated user found');
           return;
         }
-        
+
         // Get user data from the users table
         const { data: profile, error: profileError } = await supabase
           .from('users')
           .select('name, email, avatar_url')
           .eq('id', authUser.id)
           .single();
-        
+
         console.log('Profile data from users table:', profile);
         console.log('Profile error:', profileError);
-        
+
         // Get phone from auth metadata
         const phone = authUser.phone || authUser.user_metadata?.phone || '';
         setUserPhone(phone);
-        
+
         if (profile) {
           // We have profile data from the users table
           setUser({
@@ -162,7 +162,7 @@ export default function Account() {
             email: authUser.email || '',
             avatar_url: authUser.user_metadata?.avatar_url || ''
           });
-          
+
           // Try to create the user profile if it doesn't exist
           if (profileError && profileError.code === 'PGRST116') {
             console.log('Attempting to create user profile');
@@ -174,7 +174,7 @@ export default function Account() {
                 email: authUser.email || '',
                 created_at: new Date().toISOString()
               }]);
-              
+
             if (createError) {
               console.error('Error creating user profile:', createError);
             } else {
@@ -182,12 +182,12 @@ export default function Account() {
             }
           }
         }
-        
+
         // Parse phone number to extract country code and number
         if (phone) {
           const phoneRegex = /^(\+\d+)(\d+)$/;
           const match = phone.match(phoneRegex);
-          
+
           if (match) {
             setCountryCode(match[1]);
             setPhoneWithoutCode(match[2]);
@@ -219,15 +219,15 @@ export default function Account() {
       console.log('Updating profile for user:', authUser.id);
 
       // Combine country code with phone number
-      const fullPhoneNumber = phoneWithoutCode.startsWith('+') 
-        ? phoneWithoutCode 
+      const fullPhoneNumber = phoneWithoutCode.startsWith('+')
+        ? phoneWithoutCode
         : `${countryCode}${phoneWithoutCode.startsWith('0') ? phoneWithoutCode.substring(1) : phoneWithoutCode}`;
 
       // Update auth metadata first (this is the source of truth for phone)
       const { error: authUpdateError } = await supabase.auth.updateUser({
-        data: { 
+        data: {
           name: user.name,
-          phone: fullPhoneNumber 
+          phone: fullPhoneNumber
         }
       });
 
@@ -248,7 +248,7 @@ export default function Account() {
 
       if (profileUpdateError) {
         console.error('Error updating profile in database:', profileUpdateError);
-        
+
         // If the profile doesn't exist yet, try to create it
         if (profileUpdateError.code === 'PGRST116') {
           const { error: insertError } = await supabase
@@ -259,7 +259,7 @@ export default function Account() {
               email: user.email,
               created_at: new Date().toISOString()
             }]);
-            
+
           if (insertError) {
             console.error('Error creating profile:', insertError);
             toast.error('Failed to create profile');
@@ -270,7 +270,7 @@ export default function Account() {
           return;
         }
       }
-      
+
       // Update local state
       setUserPhone(fullPhoneNumber);
       toast.success('Profile updated successfully');
@@ -296,7 +296,7 @@ export default function Account() {
         toast.error('New passwords do not match');
         return;
       }
-      
+
       if (newPassword.length < 6) {
         toast.error('Password must be at least 6 characters long');
         return;
@@ -322,11 +322,11 @@ export default function Account() {
   };
 
   return (
-    <div className="space-y-4 sm:space-y-6 pb-2">
-      <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-light">Account Settings</h1>
+    <div className="space-y-4 pb-2">
+      <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-light">Account Settings</h1>
 
-      <div className="bg-white dark:bg-dark-600 p-4 sm:p-6 rounded-lg shadow-sm border border-gray-100 dark:border-dark-500 text-gray-900 dark:text-light">
-        <h2 className="text-lg sm:text-xl font-semibold mb-4 text-gray-900 dark:text-light">Profile Information</h2>
+      <div className="widget-surface p-4 sm:p-5 rounded-lg shadow-sm border-pin text-gray-900 dark:text-light">
+        <h2 className="text-base sm:text-lg font-semibold mb-4 text-gray-900 dark:text-light">Profile Information</h2>
         <div className="flex flex-col md:flex-row gap-6 mb-2 md:mb-6">
           <div className="flex flex-col items-center space-y-3">
             <div className="relative">
@@ -334,10 +334,10 @@ export default function Account() {
                 <img
                   src={user.avatar_url}
                   alt="Profile"
-                  className="w-24 h-24 rounded-full object-cover border-2 border-gray-100 dark:border-dark-400 shadow-sm"
+                  className="w-24 h-24 rounded-full object-cover border-2 border-gray-100 dark:border-dark-400 shadow-md"
                 />
               ) : (
-                <div className="w-24 h-24 rounded-full bg-gray-100 dark:bg-dark-400 flex items-center justify-center border-2 border-gray-100 dark:border-dark-400 shadow-sm">
+                <div className="w-24 h-24 rounded-full bg-gray-100 dark:bg-dark-400 flex items-center justify-center border-2 border-gray-100 dark:border-dark-400 shadow-md">
                   <User className="w-12 h-12 text-gray-400 dark:text-gray-300" />
                 </div>
               )}
@@ -354,52 +354,52 @@ export default function Account() {
             </div>
             <p className="text-sm text-gray-500 dark:text-gray-400 text-center">Tap to change profile picture</p>
           </div>
-          
+
           <div className="flex-1 space-y-4 min-w-0">
             <div>
               <label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Name</label>
               <div className="flex items-center gap-2 sm:gap-3">
-                <User className="w-5 h-5 text-gray-400 shrink-0" />
+                <User className="w-5 h-5 text-gray-400 dark:text-gray-500 shrink-0" />
                 <input
                   type="text"
                   value={user.name}
                   onChange={(e) => setUser({ ...user, name: e.target.value })}
-                  className="min-w-0 flex-1 px-3 sm:px-4 py-2.5 border border-gray-200 dark:border-dark-400 bg-white dark:bg-dark-700 text-gray-900 dark:text-light rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
+                  className="auth-input min-w-0 flex-1"
                   placeholder="Your name"
                 />
               </div>
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Email</label>
               <div className="flex items-center gap-2 sm:gap-3">
-                <Mail className="w-5 h-5 text-gray-400 shrink-0" />
+                <Mail className="w-5 h-5 text-gray-400 dark:text-gray-500 shrink-0" />
                 <input
                   type="email"
                   value={user.email}
                   onChange={(e) => setUser({ ...user, email: e.target.value })}
-                  className="min-w-0 flex-1 px-3 sm:px-4 py-2.5 border border-gray-200 dark:border-dark-400 bg-white dark:bg-dark-700 text-gray-900 dark:text-light rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
+                  className="auth-input min-w-0 flex-1"
                   placeholder="your@email.com"
                 />
               </div>
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Phone Number</label>
               <div className="flex items-center gap-2 sm:gap-3">
-                <Phone className="w-5 h-5 text-gray-400 shrink-0" />
+                <Phone className="w-5 h-5 text-gray-400 dark:text-gray-500 shrink-0" />
                 <div className="flex flex-1 items-center gap-2 min-w-0">
                   <div className="shrink-0">
-                    <CountryCodeSelect 
-                      selectedCode={countryCode} 
-                      onSelect={setCountryCode} 
+                    <CountryCodeSelect
+                      selectedCode={countryCode}
+                      onSelect={setCountryCode}
                     />
                   </div>
                   <input
                     type="tel"
                     value={phoneWithoutCode}
                     onChange={(e) => setPhoneWithoutCode(e.target.value)}
-                    className="min-w-0 flex-1 w-full px-3 sm:px-4 py-2.5 border border-gray-200 dark:border-dark-400 bg-white dark:bg-dark-700 text-gray-900 dark:text-light rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
+                    className="auth-input min-w-0 flex-1 w-full"
                     placeholder="7025551234"
                   />
                 </div>
@@ -410,7 +410,7 @@ export default function Account() {
             <button
               onClick={handleUpdateProfile}
               disabled={loading}
-              className="w-full py-2.5 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition disabled:bg-primary-400 disabled:cursor-not-allowed font-medium shadow-md shadow-primary-200 dark:shadow-none"
+              className="auth-btn-primary w-full py-2.5 rounded-lg disabled:cursor-not-allowed font-medium shadow-md shadow-primary-200 dark:shadow-none"
             >
               {loading ? 'Updating...' : 'Update Profile'}
             </button>
@@ -418,43 +418,43 @@ export default function Account() {
         </div>
       </div>
 
-      <div className="bg-white dark:bg-dark-600 p-4 sm:p-6 rounded-lg shadow-sm border border-gray-100 dark:border-dark-500 text-gray-900 dark:text-light">
-        <h2 className="text-lg sm:text-xl font-semibold mb-4 text-gray-900 dark:text-light">Security</h2>
+      <div className="widget-surface p-4 sm:p-5 rounded-lg shadow-sm border-pin text-gray-900 dark:text-light">
+        <h2 className="text-base sm:text-lg font-semibold mb-4 text-gray-900 dark:text-light">Security</h2>
         <form onSubmit={handleUpdatePassword} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Current Password</label>
             <input
               type="password"
               name="currentPassword"
-              className="w-full px-3 sm:px-4 py-2.5 border border-gray-200 dark:border-dark-400 bg-white dark:bg-dark-700 text-gray-900 dark:text-light rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
+              className="auth-input w-full"
               placeholder="••••••••"
             />
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">New Password</label>
             <input
               type="password"
               name="newPassword"
-              className="w-full px-3 sm:px-4 py-2.5 border border-gray-200 dark:border-dark-400 bg-white dark:bg-dark-700 text-gray-900 dark:text-light rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
+              className="auth-input w-full"
               placeholder="••••••••"
             />
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Confirm New Password</label>
             <input
               type="password"
               name="confirmPassword"
-              className="w-full px-3 sm:px-4 py-2.5 border border-gray-200 dark:border-dark-400 bg-white dark:bg-dark-700 text-gray-900 dark:text-light rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
+              className="auth-input w-full"
               placeholder="••••••••"
             />
           </div>
-          
+
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2.5 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition disabled:bg-primary-400 disabled:cursor-not-allowed font-medium shadow-md shadow-primary-200 dark:shadow-none"
+            className="auth-btn-primary w-full py-2.5 rounded-lg disabled:cursor-not-allowed font-medium shadow-md shadow-primary-200 dark:shadow-none"
           >
             {loading ? 'Updating...' : 'Update Password'}
           </button>
